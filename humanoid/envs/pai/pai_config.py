@@ -137,8 +137,8 @@ class PaiCfg(LeggedRobotCfg):
         action_scale = 0.25
         # action_scale = 0.5
         # decimation: Number of control action updates @ sim DT per policy DT
-        decimation = 10  # 100hz
-        # decimation = 20  # 100hz
+        # decimation = 10  # 100hz
+        decimation = 20  # 100hz
 
     class sim(LeggedRobotCfg.sim):
         dt = 0.001  # 1000 Hz
@@ -183,7 +183,7 @@ class PaiCfg(LeggedRobotCfg):
             heading = [-3.14, 3.14]
 
     class rewards:
-        base_height_target = 0.38
+        base_height_target = 0.3453
         min_dist = 0.15
         max_dist = 0.2
         # put some settings here for LLM parameter tuning
@@ -259,7 +259,7 @@ class PaiCfgPPO(LeggedRobotCfgPPO):
     class runner:
         policy_class_name = 'ActorCritic'
         algorithm_class_name = 'PPO'
-        num_steps_per_env = 60  # per iteration
+        num_steps_per_env = 25  # per iteration
         max_iterations = 10001  # number of policy updates
 
         # logging
