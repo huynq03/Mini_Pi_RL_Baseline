@@ -123,22 +123,22 @@ class PaiCfg(LeggedRobotCfg):
             "thigh_joint": 80.0,
             "calf_joint": 80.0,
             "ankle_pitch_joint": 80,
-            "ankle_roll_joint": 80,
+            "ankle_roll_joint": 50,
         }
         damping = {
-            "hip_pitch_joint": 0.5,
-            "hip_roll_joint": 0.5,
-            "thigh_joint": 0.5,
-            "calf_joint": 0.5,
-            "ankle_pitch_joint": 0.4,
-            "ankle_roll_joint": 0.2,
+            "hip_pitch_joint": 1,
+            "hip_roll_joint": 1,
+            "thigh_joint": 1,
+            "calf_joint": 1,
+            "ankle_pitch_joint": 0.8,
+            "ankle_roll_joint": 0.4,
         }
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
         # action_scale = 0.5
         # decimation: Number of control action updates @ sim DT per policy DT
-        decimation = 10  # 100hz
-        # decimation = 20  # 100hz
+        # decimation = 10  # 100hz
+        decimation = 20  # 100hz
 
     class sim(LeggedRobotCfg.sim):
         dt = 0.001  # 1000 Hz
@@ -183,7 +183,7 @@ class PaiCfg(LeggedRobotCfg):
             heading = [-3.14, 3.14]
 
     class rewards:
-        base_height_target = 0.38
+        base_height_target = 0.32
         min_dist = 0.15
         max_dist = 0.2
         # put some settings here for LLM parameter tuning
@@ -216,6 +216,7 @@ class PaiCfg(LeggedRobotCfg):
             track_vel_hard = 0.5
             # base pos
             default_joint_pos = 0.5
+            default_ankle_roll_pos = 1.
             orientation = 1.
             base_height = 0.5
             base_acc = 0.2

@@ -547,3 +547,12 @@ class PaiFreeEnv(LeggedRobot):
             self.actions + self.last_last_actions - 2 * self.last_actions), dim=1)
         term_3 = 0.05 * torch.sum(torch.abs(self.actions), dim=1)
         return term_1 + term_2 + term_3
+
+    def _reward_default_ankle_roll_pos(self):
+
+        joint_diff = self.dof_pos - self.default_joint_pd_target
+        left_ankle_roll = joint_diff[:, 6]
+        right_ankle_roll = joint_diff[:, 11]
+        ankle_roll = torch.abs(left_ankle_roll) + torch.abs(right_ankle_roll)
+        ankle_roll = torch.clamp(ankle_roll - 0.05, 0, 10)
+        return torch.exp(-ankle_roll * 100)

@@ -225,7 +225,7 @@ if __name__ == '__main__':
 
         class robot_config:
             kps = np.array([80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80], dtype=np.double)
-            kds = np.array([0.5, 0.5, 0.5, 0.5, 0.4, 0.2, 0.5, 0.5, 0.5, 0.5, 0.4, 0.2], dtype=np.double)
+            kds = np.array([0.5, 0.5, 0.5, 0.5, 0.4, 0.2, 0.5, 0.5, 0.5, 0.5, 0.4, 0.2], dtype=np.double)*2
             tau_limit = 10. * np.ones(12, dtype=np.double)
 
     policy = torch.jit.load(args.load_model)
