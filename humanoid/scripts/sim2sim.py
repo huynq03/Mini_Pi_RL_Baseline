@@ -215,10 +215,7 @@ if __name__ == '__main__':
     class Sim2simCfg(PaiCfg):
 
         class sim_config:
-            if args.terrain:
-                mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/XBot/mjcf/XBot-L-terrain.xml'
-            else:
-                mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/pi_12dof_release_v1/mjcf/pi_12dof_release_v1.xml'
+            mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/pi_12dof_release_v1/mjcf/pi_12dof_release_v1.xml'
             sim_duration = 60.0
             dt = 0.001
             decimation = 10

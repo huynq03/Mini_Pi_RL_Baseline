@@ -163,7 +163,7 @@ def get_args():
         {
             "name": "--task",
             "type": str,
-            "default": "XBotL_free",
+            "default": "pai_ppo",
             "help": "Resume training or start testing from a checkpoint. Overrides config file if provided.",
         },
         {
@@ -181,6 +181,7 @@ def get_args():
             "name": "--run_name",
             "type": str,
             "help": "Name of the run. Overrides config file if provided.",
+            "default": "v1",
         },
         {
             "name": "--load_run",

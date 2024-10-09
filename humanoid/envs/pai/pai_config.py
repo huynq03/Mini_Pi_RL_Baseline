@@ -33,7 +33,7 @@ from humanoid.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotCf
 
 class PaiCfg(LeggedRobotCfg):
     """
-    Configuration class for the XBotL humanoid robot.
+    Configuration class for the high-torque Pi robot.
     """
     class env(LeggedRobotCfg.env):
         # change the observation dim

@@ -33,12 +33,12 @@ from setuptools import find_packages
 from distutils.core import setup
 
 setup(
-    name='livelybot_rl_control',
+    name='pi_rl_control',
     version='1.0.0',
-    author='Haojie Wang',
+    author='High torque',
     license="BSD-3-Clause",
     packages=find_packages(),
-    author_email='whjsmx@gmail.com',
+    author_email='control@hightorquerobotics.com',
     description='Isaac Gym environments for HighTorque robot',
     install_requires=['isaacgym',  # preview4
                       'wandb',
