@@ -433,18 +433,19 @@ class PaiFreeEnv(LeggedRobot):
         Calculates the reward for keeping joint positions close to default positions, with a focus
         on penalizing deviation in yaw and roll directions. Excludes yaw and roll from the main penalty.
         """
-        selected_columns = [1, 7]
+        selected_columns = [1, 5, 7, 11]
         _yaw_roll = self.dof_pos[:, selected_columns]
         yaw_roll = torch.norm(_yaw_roll, dim=1)
         yaw_roll = torch.clamp(yaw_roll, 0, 50)
-        return torch.exp(-yaw_roll/0.01)
-    
+        return torch.exp(-yaw_roll / 0.1)
+
     def _reward_default_thigh_joint_pos(self):
         selected_columns = [2, 8]
         _yaw_roll = self.dof_pos[:, selected_columns]
         yaw_roll = torch.norm(_yaw_roll, dim=1)
         yaw_roll = torch.clamp(yaw_roll, 0, 50)
-        return torch.exp(-yaw_roll/0.01)
+        return torch.exp(-yaw_roll / 0.1)
+
     def _reward_base_height(self):
         """
         Calculates the reward based on the robot's base height. Penalizes deviation from a target base height.
@@ -525,10 +526,10 @@ class PaiFreeEnv(LeggedRobot):
         Encourages appropriate lift of the feet during the swing phase of the gait.
         """
         # Compute feet contact mask
-        contact = self.contact_forces[:, self.feet_indices, 2] > 5.0
+        contact = self.contact_forces[:, self.feet_indices, 2] > 0.1
 
         # Get the z-position of the feet and compute the change in z-position
-        feet_z = self.rigid_state[:, self.feet_indices, 2] - 0.05
+        feet_z = self.rigid_state[:, self.feet_indices, 2] - 0.05063
         delta_z = feet_z - self.last_feet_z
         self.feet_height += delta_z
         self.last_feet_z = feet_z
@@ -631,14 +632,14 @@ class PaiFreeEnv(LeggedRobot):
         return term_1 + term_2 + term_3
 
     def _reward_default_ankle_roll_pos(self):
-        feet_eular_0 = get_euler_xyz_tensor(
-            self.rigid_state[:, self.feet_indices[0], 3:7]
-        )[:, :1]
-        feet_eular_1 = get_euler_xyz_tensor(
-            self.rigid_state[:, self.feet_indices[1], 3:7]
-        )[:, :1]
-        rew = torch.exp(
-            -(torch.norm(feet_eular_0, dim=1) + torch.norm(feet_eular_1, dim=1)) * 5
+        feet_eular_0 = torch.abs(
+            get_euler_xyz_tensor(self.rigid_state[:, self.feet_indices[0], 3:7])[:, 0]
         )
+        feet_eular_1 = torch.abs(
+            get_euler_xyz_tensor(self.rigid_state[:, self.feet_indices[1], 3:7])[:, 0]
+        )
+        # print(feet_eular_1.size())
+        rew = torch.exp(-((feet_eular_0 + feet_eular_1) / 2) / 0.1)
+        # print(rew.size())
         # print(nn.size())
         return rew

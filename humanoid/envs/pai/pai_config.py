@@ -45,7 +45,7 @@ class PaiCfg(LeggedRobotCfg):
         num_privileged_obs = int(c_frame_stack * (single_num_privileged_obs))
         num_actions = 12
         num_envs = 4096
-        episode_length_s = 24  # episode length in seconds
+        episode_length_s = 12  # episode length in seconds
         use_ref_actions = False
 
     class safety:
@@ -183,12 +183,12 @@ class PaiCfg(LeggedRobotCfg):
             heading = [-3.14, 3.14]
 
     class rewards:
-        base_height_target = 0.32
+        base_height_target = 0.3453
         min_dist = 0.15
         max_dist = 0.2
         # put some settings here for LLM parameter tuning
-        target_joint_pos_scale = 0.17    # rad
-        target_feet_height = 0.02       # m
+        target_joint_pos_scale = 0.08    # rad
+        target_feet_height = 0.025       # m
         cycle_time = 0.5                # sec
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
@@ -199,7 +199,7 @@ class PaiCfg(LeggedRobotCfg):
         class scales:
             # reference motion tracking
             joint_pos = 1.6                 # 1.6
-            feet_clearance = 1.
+            feet_clearance = 6.
             feet_contact_number = 1.2
             # gait
             feet_air_time = 1.
@@ -216,7 +216,7 @@ class PaiCfg(LeggedRobotCfg):
             track_vel_hard = 0.5
             # base pos
             default_hip_roll_joint_pos = 8
-            default_thigh_joint_pos = 4
+            default_thigh_joint_pos = 2
             default_ankle_roll_pos = 1.
             orientation = 1.
             base_height = 0.5

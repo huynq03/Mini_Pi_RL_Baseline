@@ -222,12 +222,12 @@ if __name__ == '__main__':
                 mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/pi_12dof_release_v1/mjcf/pi_12dof_release_v1.xml'
             sim_duration = 60.0
             dt = 0.001
-            decimation = 10
+            decimation = 20
 
         class robot_config:
-            kps = np.array([80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80], dtype=np.double)
-            kds = np.array([0.5, 0.5, 0.5, 0.5, 0.4, 0.2, 0.5, 0.5, 0.5, 0.5, 0.4, 0.2], dtype=np.double)*2
-            tau_limit = 10. * np.ones(12, dtype=np.double)
+            kps = 60 * np.ones(12, dtype=np.double)
+            kds = 0.6 * np.ones(12, dtype=np.double)
+            tau_limit = 40. * np.ones(12, dtype=np.double)
 
     policy = torch.jit.load(args.load_model)
     run_mujoco(policy, Sim2simCfg())
