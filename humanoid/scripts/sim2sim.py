@@ -207,8 +207,9 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='Deployment script.')
-    parser.add_argument('--load_model', type=str, required=True,
-                        help='Run to load from.')
+    parser.add_argument('--load_model', type=str, required=False,
+                        help='Run to load from.',
+                        default=f"{LEGGED_GYM_ROOT_DIR}/logs/Pai_ppo/exported/policies/policy_1.pt")
     parser.add_argument('--terrain', action='store_true', help='terrain or plane')
     args = parser.parse_args()
 

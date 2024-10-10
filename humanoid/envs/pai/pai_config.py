@@ -123,15 +123,15 @@ class PaiCfg(LeggedRobotCfg):
             "thigh_joint": 80.0,
             "calf_joint": 80.0,
             "ankle_pitch_joint": 80,
-            "ankle_roll_joint": 50,
+            "ankle_roll_joint": 80,
         }
         damping = {
             "hip_pitch_joint": 1,
             "hip_roll_joint": 1,
             "thigh_joint": 1,
             "calf_joint": 1,
-            "ankle_pitch_joint": 0.8,
-            "ankle_roll_joint": 0.4,
+            "ankle_pitch_joint": 1,
+            "ankle_roll_joint": 1,
         }
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
@@ -215,7 +215,8 @@ class PaiCfg(LeggedRobotCfg):
             low_speed = 0.2
             track_vel_hard = 0.5
             # base pos
-            default_joint_pos = 0.5
+            default_hip_roll_joint_pos = 8
+            default_thigh_joint_pos = 4
             default_ankle_roll_pos = 1.
             orientation = 1.
             base_height = 0.5
@@ -260,13 +261,13 @@ class PaiCfgPPO(LeggedRobotCfgPPO):
     class runner:
         policy_class_name = 'ActorCritic'
         algorithm_class_name = 'PPO'
-        num_steps_per_env = 60  # per iteration
+        num_steps_per_env = 24  # per iteration
         max_iterations = 10001  # number of policy updates
 
         # logging
         save_interval = 100  # check for potential saves every this many iterations
         experiment_name = 'Pai_ppo'
-        run_name = ''
+        run_name = 'v1'
         # load and resume
         resume = False
         load_run = -1  # -1 = last run
