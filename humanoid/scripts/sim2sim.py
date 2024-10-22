@@ -43,7 +43,7 @@ import pandas as pd
 
 
 class cmd:
-    vx = 0.2
+    vx = 0.4
     vy = 0.0
     dyaw = 0.0
 
@@ -225,7 +225,7 @@ if __name__ == '__main__':
             decimation = 20
 
         class robot_config:
-            kps = 60 * np.ones(12, dtype=np.double)
+            kps = 55 * np.ones(12, dtype=np.double)
             kds = 0.6 * np.ones(12, dtype=np.double)
             tau_limit = 40. * np.ones(12, dtype=np.double)
 
