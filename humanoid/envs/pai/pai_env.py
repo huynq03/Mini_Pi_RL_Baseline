@@ -124,7 +124,28 @@ class PaiFreeEnv(LeggedRobot):
         self.time_out_buf = (
             self.episode_length_buf > self.max_episode_length
         )  # no terminal reward for time-outs
-        self.reset_buf |= torch.any(self.base_pos[:, 2:3] < 0.15, dim=1)
+        self.reset_buf |= torch.any(
+            torch.abs(self.projected_gravity[:, 0:1]) > 0.8, dim=1
+        )
+        self.reset_buf |= torch.any(
+            torch.abs(self.projected_gravity[:, 1:2]) > 0.8, dim=1
+        )
+        self.reset_buf |= torch.any(
+            torch.norm(self.base_ang_vel, dim=-1, keepdim=True) > 15.0, dim=1
+        )
+        self.reset_buf |= torch.any(
+            torch.norm(self.base_lin_vel, dim=-1, keepdim=True) > 25.0, dim=1
+        )
+        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 2:3]) > 0.1, dim=1)
+        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 8:9]) > 0.1, dim=1)
+
+        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 1:2]) > 0.15, dim=1)
+        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 7:8]) > 0.15, dim=1)
+
+        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 5:6]) > 0.1, dim=1)
+        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 11:12]) > 0.1, dim=1)
+
+        self.reset_buf |= torch.any(self.base_pos[:, 2:3] < 0.3, dim=1)
         self.reset_buf |= self.time_out_buf
 
     def _get_phase(self):
@@ -135,7 +156,7 @@ class PaiFreeEnv(LeggedRobot):
     def _get_gait_phase(self):
         # return float mask 1 is stance, 0 is swing
         phase = self._get_phase()
-        sin_pos = torch.sin(2 * torch.pi * phase)
+        sin_pos = torch.sin(2 * torch.pi * phase +  self.random_half_phase[0])
         # Add double support phase
         stance_mask = torch.zeros((self.num_envs, 2), device=self.device)
         # left foot stance
@@ -149,7 +170,7 @@ class PaiFreeEnv(LeggedRobot):
 
     def compute_ref_state(self):
         phase = self._get_phase()
-        sin_pos = torch.sin(2 * torch.pi * phase)
+        sin_pos = torch.sin(2 * torch.pi * phase +  self.random_half_phase[0])
         sin_pos_l = sin_pos.clone()
         sin_pos_r = sin_pos.clone()
         self.ref_dof_pos = torch.zeros_like(self.dof_pos)
@@ -234,8 +255,8 @@ class PaiFreeEnv(LeggedRobot):
         phase = self._get_phase()
         self.compute_ref_state()
 
-        sin_pos = torch.sin(2 * torch.pi * phase).unsqueeze(1)
-        cos_pos = torch.cos(2 * torch.pi * phase).unsqueeze(1)
+        sin_pos = torch.sin(2 * torch.pi * phase + self.random_half_phase[0]).unsqueeze(1)
+        cos_pos = torch.cos(2 * torch.pi * phase + self.random_half_phase[0]).unsqueeze(1)
 
         stance_mask = self._get_gait_phase()
         contact_mask = self.contact_forces[:, self.feet_indices, 2] > 5.0
@@ -529,7 +550,11 @@ class PaiFreeEnv(LeggedRobot):
         contact = self.contact_forces[:, self.feet_indices, 2] > 0.1
 
         # Get the z-position of the feet and compute the change in z-position
-        feet_z = self.rigid_state[:, self.feet_indices, 2] - 0.05063
+        feet_z = (
+            # self.rigid_state[:, self.feet_indices, 2]
+            # + 
+            self.rigid_state[:, self.feet_indices - 1, 2]
+        ) / 2 - 0.05063
         delta_z = feet_z - self.last_feet_z
         self.feet_height += delta_z
         self.last_feet_z = feet_z
@@ -632,14 +657,17 @@ class PaiFreeEnv(LeggedRobot):
         return term_1 + term_2 + term_3
 
     def _reward_default_ankle_roll_pos(self):
-        feet_eular_0 = torch.abs(
-            get_euler_xyz_tensor(self.rigid_state[:, self.feet_indices[0], 3:7])[:, 0]
-        )
-        feet_eular_1 = torch.abs(
-            get_euler_xyz_tensor(self.rigid_state[:, self.feet_indices[1], 3:7])[:, 0]
-        )
-        # print(feet_eular_1.size())
+        e_1 = get_euler_xyz_tensor(self.rigid_state[:, self.feet_indices[0], 3:7])
+        e_2 = get_euler_xyz_tensor(self.rigid_state[:, self.feet_indices[1], 3:7])
+
+        feet_eular_0 = torch.abs(e_1[:, 0])
+        feet_eular_1 = torch.abs(e_2[:, 0])
         rew = torch.exp(-((feet_eular_0 + feet_eular_1) / 2) / 0.1)
-        # print(rew.size())
-        # print(nn.size())
-        return rew
+        feet_eular_0 = torch.abs(e_1[:, 1])
+        feet_eular_1 = torch.abs(e_2[:, 1])
+        rew += torch.exp(-((feet_eular_0 + feet_eular_1) / 2) / 0.1)
+        return rew / 2
+
+    def _reward_termination(self):
+        # Terminal reward / penalty
+        return -(self.reset_buf * ~self.time_out_buf).float()

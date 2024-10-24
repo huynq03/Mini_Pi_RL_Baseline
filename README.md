@@ -1,13 +1,13 @@
-# livelybot_rl_control
+# Pi_rl_baseline
 
-This repository provides a reinforcement learning environment used to train HighTorque’s Legged Robot using NVIDIA’s Isaac Gym. Livelybot_rl_control also integrates a sim-to-sim framework from Isaac Gym to Mujoco that allows users to verify the trained policies in different physical simulations to ensure the robustness and generalization of the policies.
+该基线工作提供了一个基于 NVIDIA Isaac Gym 的强化学习环境，对 高擎机电的双足机器人 Pi Pi_rl_baseline 还整合了从 Isaac Gym 到 Mujoco 的sim2sim框架，使用户能够在不同的物理模拟中验证训练得到的策略，以确保策略的稳健性和泛化能力。
 
-## Installation
+## 安装
 
 1. Generate a new Python virtual environment with Python 3.8 using `conda create -n myenv python=3.8`.
 2. For the best performance, we recommend using NVIDIA driver version 525 `sudo apt install nvidia-driver-525`. The minimal driver version supported is 515. If you're unable to install version 525, ensure that your system has at least version 515 to maintain basic functionality.
 3. Install PyTorch 1.13 with Cuda-11.7:
-   - `conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -c nvidia`
+   - `conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia`
 4. Install numpy-1.23 with `conda install numpy=1.23`.
 5. Install Isaac Gym:
    - Download and install Isaac Gym Preview 4 from https://developer.nvidia.com/isaac-gym.

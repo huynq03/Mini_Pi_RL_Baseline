@@ -85,6 +85,8 @@ class BaseTask():
             self.num_envs, device=self.device, dtype=torch.long)
         self.time_out_buf = torch.zeros(
             self.num_envs, device=self.device, dtype=torch.bool)
+        self.random_half_phase =  torch.pi * torch.randint(0,2,
+            (1,self.num_envs), device=self.device, dtype=torch.long)
         if self.num_privileged_obs is not None:
             self.privileged_obs_buf = torch.zeros(
                 self.num_envs, self.num_privileged_obs, device=self.device, dtype=torch.float)

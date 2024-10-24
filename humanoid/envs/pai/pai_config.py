@@ -45,7 +45,7 @@ class PaiCfg(LeggedRobotCfg):
         num_privileged_obs = int(c_frame_stack * (single_num_privileged_obs))
         num_actions = 12
         num_envs = 4096
-        episode_length_s = 12  # episode length in seconds
+        episode_length_s = 24  # episode length in seconds
         use_ref_actions = False
 
     class safety:
@@ -118,20 +118,20 @@ class PaiCfg(LeggedRobotCfg):
     class control(LeggedRobotCfg.control):
         # PD Drive parameters:
         stiffness = {
-            "hip_pitch_joint": 55.0,
-            "hip_roll_joint": 55.0,
-            "thigh_joint": 55.0,
-            "calf_joint": 55.0,
-            "ankle_pitch_joint": 55,
-            "ankle_roll_joint": 55,
+            "hip_pitch_joint": 80.0,
+            "hip_roll_joint": 80.0,
+            "thigh_joint": 80.0,
+            "calf_joint": 80.0,
+            "ankle_pitch_joint": 80.0,
+            "ankle_roll_joint": 80.0,
         }
         damping = {
-            "hip_pitch_joint": 0.6,
-            "hip_roll_joint": 0.6,
-            "thigh_joint": 0.6,
-            "calf_joint": 0.6,
-            "ankle_pitch_joint": 0.6,
-            "ankle_roll_joint": 0.6,
+            "hip_pitch_joint": 0.95,
+            "hip_roll_joint": 0.95,
+            "thigh_joint": 0.95,
+            "calf_joint": 0.95,
+            "ankle_pitch_joint": 0.95,
+            "ankle_roll_joint": 0.95,
         }
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
@@ -187,9 +187,9 @@ class PaiCfg(LeggedRobotCfg):
         min_dist = 0.15
         max_dist = 0.2
         # put some settings here for LLM parameter tuning
-        target_joint_pos_scale = 0.08    # rad
+        target_joint_pos_scale = 0.07    # rad
         target_feet_height = 0.025       # m
-        cycle_time = 0.5                # sec
+        cycle_time = 0.4                # sec
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
         # tracking reward = exp(error*sigma)
@@ -199,7 +199,7 @@ class PaiCfg(LeggedRobotCfg):
         class scales:
             # reference motion tracking
             joint_pos = 1.6                 # 1.6
-            feet_clearance = 6
+            feet_clearance = 15.
             feet_contact_number = 1.2
             # gait
             feet_air_time = 1.
@@ -209,16 +209,16 @@ class PaiCfg(LeggedRobotCfg):
             # contact
             feet_contact_forces = -0.01
             # vel tracking
-            tracking_lin_vel = 6 
+            tracking_lin_vel = 6
             tracking_ang_vel = 6
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
             low_speed = 0.2
-            track_vel_hard = 9
+            track_vel_hard = 1
             # base pos
             default_hip_roll_joint_pos = 8.0
             default_thigh_joint_pos = 2.0
-            default_ankle_roll_pos = 1.0
-            orientation = 1.
+            default_ankle_roll_pos = 0.5
+            orientation = 2.
             base_height = 0.5
             base_acc = 0.2
             # energy
@@ -227,6 +227,8 @@ class PaiCfg(LeggedRobotCfg):
             dof_vel = -5e-4
             dof_acc = -1e-7
             collision = -1.
+            
+            termination = 1.0
 
     class normalization:
         class obs_scales:

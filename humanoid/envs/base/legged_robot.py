@@ -195,6 +195,7 @@ class LeggedRobot(BaseTask):
         self.feet_air_time[env_ids] = 0.
         self.episode_length_buf[env_ids] = 0
         self.reset_buf[env_ids] = 1
+        self.random_half_phase[0,env_ids] =  torch.pi * torch.randint(0,2,(len(env_ids),), device=self.device)
         # fill extras
         self.extras["episode"] = {}
         for key in self.episode_sums.keys():
