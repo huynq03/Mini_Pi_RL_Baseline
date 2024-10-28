@@ -122,16 +122,16 @@ class PaiCfg(LeggedRobotCfg):
             "hip_roll_joint": 80.0,
             "thigh_joint": 80.0,
             "calf_joint": 80.0,
-            "ankle_pitch_joint": 80.0,
-            "ankle_roll_joint": 80.0,
+            "ankle_pitch_joint": 30.0,
+            "ankle_roll_joint": 30.0,
         }
         damping = {
             "hip_pitch_joint": 0.95,
             "hip_roll_joint": 0.95,
             "thigh_joint": 0.95,
             "calf_joint": 0.95,
-            "ankle_pitch_joint": 0.95,
-            "ankle_roll_joint": 0.95,
+            "ankle_pitch_joint": 0.5,
+            "ankle_roll_joint": 0.5,
         }
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
@@ -193,7 +193,7 @@ class PaiCfg(LeggedRobotCfg):
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
         # tracking reward = exp(error*sigma)
-        tracking_sigma = 5
+        tracking_sigma = 0.15
         max_contact_force = 100  # forces above this value are penalized
 
         class scales:
@@ -209,8 +209,8 @@ class PaiCfg(LeggedRobotCfg):
             # contact
             feet_contact_forces = -0.001
             # vel tracking
-            tracking_lin_vel = 1
-            tracking_ang_vel = 1
+            tracking_lin_vel = 2
+            tracking_ang_vel = 2
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
             low_speed = 0.05
             track_vel_hard = 0.2

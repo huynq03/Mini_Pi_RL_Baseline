@@ -124,12 +124,12 @@ class PaiFreeEnv(LeggedRobot):
         self.time_out_buf = (
             self.episode_length_buf > self.max_episode_length
         )  # no terminal reward for time-outs
-        self.reset_buf |= torch.any(
-            torch.abs(self.projected_gravity[:, 0:1]) > 0.8, dim=1
-        )
-        self.reset_buf |= torch.any(
-            torch.abs(self.projected_gravity[:, 1:2]) > 0.8, dim=1
-        )
+        # self.reset_buf |= torch.any(
+        #     torch.abs(self.projected_gravity[:, 0:1]) > 0.8, dim=1
+        # )
+        # self.reset_buf |= torch.any(
+        #     torch.abs(self.projected_gravity[:, 1:2]) > 0.8, dim=1
+        # )
         # self.reset_buf |= torch.any(
         #     torch.norm(self.base_ang_vel, dim=-1, keepdim=True) > 15.0, dim=1
         # )
@@ -140,8 +140,8 @@ class PaiFreeEnv(LeggedRobot):
         self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 2:3]) > 0.3, dim=1)
         self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 8:9]) > 0.3, dim=1)
         # hip roll
-        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 1:2]) > 0.15, dim=1)
-        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 7:8]) > 0.15, dim=1)
+        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 1:2]) > 0.1, dim=1)
+        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 7:8]) > 0.1, dim=1)
         # ankle roll
         self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 5:6]) > 0.15, dim=1)
         self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 11:12]) > 0.15, dim=1)
@@ -528,10 +528,9 @@ class PaiFreeEnv(LeggedRobot):
         Tracks linear velocity commands along the xy axes.
         Calculates a reward based on how closely the robot's linear velocity matches the commanded values.
         """
-        lin_vel_error = torch.sum(
-            torch.square(self.commands[:, :2] - self.base_lin_vel[:, :2]), dim=1
-        )
-        return torch.exp(-lin_vel_error * self.cfg.rewards.tracking_sigma)
+        error = self.commands[:, :2] - self.base_lin_vel[:, :2]
+        error *= 1.0 / (1.0 + torch.abs(self.commands[:, :2]))
+        return self._negsqrd_exp(error, a=self.cfg.rewards.tracking_sigma).sum(dim=1)
 
     def _reward_tracking_ang_vel(self):
         """
@@ -539,8 +538,11 @@ class PaiFreeEnv(LeggedRobot):
         Computes a reward based on how closely the robot's angular velocity matches the commanded yaw values.
         """
 
-        ang_vel_error = torch.square(self.commands[:, 2] - self.base_ang_vel[:, 2])
-        return torch.exp(-ang_vel_error * self.cfg.rewards.tracking_sigma)
+        error = self.commands[:, 2] - self.base_ang_vel[:, 2]
+        error *= 1.0 / (1.0 + torch.abs(self.commands[:, 2]))
+        rew = self._negsqrd_exp(error, a=self.cfg.rewards.tracking_sigma)
+        # print(rew.size())
+        return rew
 
     def _reward_feet_clearance(self):
         """
@@ -672,3 +674,17 @@ class PaiFreeEnv(LeggedRobot):
     def _reward_termination(self):
         # Terminal reward / penalty
         return -(self.reset_buf * ~self.time_out_buf).float()
+    
+# * ######################### HELPER FUNCTIONS ############################## * #
+
+    def _neg_exp(self, x, a=1):
+        """ shorthand helper for negative exponential e^(-x/a)
+            a: range of x
+        """
+        return torch.exp(-(x/a)/self.cfg.rewards.tracking_sigma)
+
+    def _negsqrd_exp(self, x, a=1):
+        """ shorthand helper for negative squared exponential e^(-(x/a)^2)
+            a: range of x
+        """
+        return torch.exp(-torch.square(x/a)/self.cfg.rewards.tracking_sigma)
