@@ -187,8 +187,8 @@ class PaiCfg(LeggedRobotCfg):
         min_dist = 0.15
         max_dist = 0.2
         # put some settings here for LLM parameter tuning
-        target_joint_pos_scale = 0.07    # rad
-        target_feet_height = 0.025       # m
+        target_joint_pos_scale = 0.08    # rad
+        target_feet_height = 0.02       # m
         cycle_time = 0.4                # sec
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
@@ -199,7 +199,7 @@ class PaiCfg(LeggedRobotCfg):
         class scales:
             # reference motion tracking
             joint_pos = 1.6                 # 1.6
-            feet_clearance = 15.
+            feet_clearance = 8.
             feet_contact_number = 1.2
             # gait
             feet_air_time = 1.
@@ -207,16 +207,16 @@ class PaiCfg(LeggedRobotCfg):
             feet_distance = 0.16   # 0.2
             knee_distance = 0.16   # 0.2
             # contact
-            feet_contact_forces = -0.01
+            feet_contact_forces = -0.001
             # vel tracking
-            tracking_lin_vel = 6
-            tracking_ang_vel = 6
+            tracking_lin_vel = 1
+            tracking_ang_vel = 1
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
-            low_speed = 0.2
-            track_vel_hard = 1
+            low_speed = 0.05
+            track_vel_hard = 0.2
             # base pos
-            default_hip_roll_joint_pos = 8.0
-            default_thigh_joint_pos = 2.0
+            default_hip_roll_joint_pos = 2
+            default_thigh_joint_pos = 0.5
             default_ankle_roll_pos = 0.5
             orientation = 2.
             base_height = 0.5
@@ -224,8 +224,8 @@ class PaiCfg(LeggedRobotCfg):
             # energy
             action_smoothness = -0.002 
             torques = -1e-5
-            dof_vel = -5e-4
-            dof_acc = -1e-7
+            dof_vel = -5e-5
+            dof_acc = -1e-8
             collision = -1.
             
             termination = 1.0
