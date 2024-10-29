@@ -1,0 +1,1 @@
+python humanoid/scripts/sim2sim.py 

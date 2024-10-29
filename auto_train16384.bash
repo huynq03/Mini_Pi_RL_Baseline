@@ -1,0 +1,1 @@
+python humanoid/scripts/train.py --headless --task=pai_ppo --run_name=v2 --num_envs 16384

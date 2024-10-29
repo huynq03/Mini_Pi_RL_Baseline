@@ -118,20 +118,20 @@ class PaiCfg(LeggedRobotCfg):
     class control(LeggedRobotCfg.control):
         # PD Drive parameters:
         stiffness = {
-            "hip_pitch_joint": 80.0,
-            "hip_roll_joint": 80.0,
-            "thigh_joint": 80.0,
-            "calf_joint": 80.0,
+            "hip_pitch_joint": 40.0,
+            "hip_roll_joint": 40.0,
+            "thigh_joint": 40.0,
+            "calf_joint": 40.0,
             "ankle_pitch_joint": 30.0,
-            "ankle_roll_joint": 30.0,
+            "ankle_roll_joint": 10.0,
         }
         damping = {
-            "hip_pitch_joint": 0.95,
-            "hip_roll_joint": 0.95,
-            "thigh_joint": 0.95,
-            "calf_joint": 0.95,
-            "ankle_pitch_joint": 0.5,
-            "ankle_roll_joint": 0.5,
+            "hip_pitch_joint": 0.4,
+            "hip_roll_joint": 0.4,
+            "thigh_joint": 0.4,
+            "calf_joint": 0.4,
+            "ankle_pitch_joint": 0.4,
+            "ankle_roll_joint": 0.4,
         }
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
@@ -146,7 +146,7 @@ class PaiCfg(LeggedRobotCfg):
         up_axis = 1  # 0 is y, 1 is z
 
         class physx(LeggedRobotCfg.sim.physx):
-            num_threads = 20
+            num_threads = 30
             solver_type = 1  # 0: pgs, 1: tgs
             num_position_iterations = 4
             num_velocity_iterations = 0
@@ -193,13 +193,13 @@ class PaiCfg(LeggedRobotCfg):
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
         # tracking reward = exp(error*sigma)
-        tracking_sigma = 0.15
+        tracking_sigma = 0.05
         max_contact_force = 100  # forces above this value are penalized
 
         class scales:
             # reference motion tracking
             joint_pos = 1.6                 # 1.6
-            feet_clearance = 8.
+            feet_clearance = 12.
             feet_contact_number = 1.2
             # gait
             feet_air_time = 1.
@@ -210,7 +210,7 @@ class PaiCfg(LeggedRobotCfg):
             feet_contact_forces = -0.001
             # vel tracking
             tracking_lin_vel = 2
-            tracking_ang_vel = 2
+            tracking_ang_vel = 10
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
             low_speed = 0.05
             track_vel_hard = 0.2

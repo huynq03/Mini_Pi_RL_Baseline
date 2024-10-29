@@ -530,7 +530,8 @@ class PaiFreeEnv(LeggedRobot):
         """
         error = self.commands[:, :2] - self.base_lin_vel[:, :2]
         error *= 1.0 / (1.0 + torch.abs(self.commands[:, :2]))
-        return self._negsqrd_exp(error, a=self.cfg.rewards.tracking_sigma).sum(dim=1)
+        rew = self._neg_sqrd_exp(error, a=self.cfg.rewards.tracking_sigma).sum(dim=1)/2
+        return rew
 
     def _reward_tracking_ang_vel(self):
         """
@@ -540,7 +541,7 @@ class PaiFreeEnv(LeggedRobot):
 
         error = self.commands[:, 2] - self.base_ang_vel[:, 2]
         error *= 1.0 / (1.0 + torch.abs(self.commands[:, 2]))
-        rew = self._negsqrd_exp(error, a=self.cfg.rewards.tracking_sigma)
+        rew = self._neg_sqrd_exp(error, a=self.cfg.rewards.tracking_sigma)
         # print(rew.size())
         return rew
 
@@ -683,7 +684,7 @@ class PaiFreeEnv(LeggedRobot):
         """
         return torch.exp(-(x/a)/self.cfg.rewards.tracking_sigma)
 
-    def _negsqrd_exp(self, x, a=1):
+    def _neg_sqrd_exp(self, x, a=1):
         """ shorthand helper for negative squared exponential e^(-(x/a)^2)
             a: range of x
         """

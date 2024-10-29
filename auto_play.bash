@@ -1,0 +1,1 @@
+python humanoid/scripts/play.py --task=pai_ppo --run_name=v2
