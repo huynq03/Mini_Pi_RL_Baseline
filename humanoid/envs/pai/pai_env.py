@@ -137,14 +137,14 @@ class PaiFreeEnv(LeggedRobot):
         #     torch.norm(self.base_lin_vel, dim=-1, keepdim=True) > 25.0, dim=1
         # )
         # thigh
-        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 2:3]) > 0.3, dim=1)
-        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 8:9]) > 0.3, dim=1)
+        # self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 2:3]) > 0.3, dim=1)
+        # self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 8:9]) > 0.3, dim=1)
         # hip roll
-        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 1:2]) > 0.1, dim=1)
-        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 7:8]) > 0.1, dim=1)
+        # self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 1:2]) > 0.1, dim=1)
+        # self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 7:8]) > 0.1, dim=1)
         # ankle roll
-        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 5:6]) > 0.15, dim=1)
-        self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 11:12]) > 0.15, dim=1)
+        # self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 5:6]) > 0.15, dim=1)
+        # self.reset_buf |= torch.any(torch.abs(self.dof_pos[:, 11:12]) > 0.15, dim=1)
 
         self.reset_buf |= torch.any(self.base_pos[:, 2:3] < 0.3, dim=1)
         self.reset_buf |= self.time_out_buf
