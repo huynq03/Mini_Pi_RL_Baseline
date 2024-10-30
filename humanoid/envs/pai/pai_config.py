@@ -193,7 +193,7 @@ class PaiCfg(LeggedRobotCfg):
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
         # tracking reward = exp(error*sigma)
-        tracking_sigma = 0.08
+        tracking_sigma = 0.09
         max_contact_force = 100  # forces above this value are penalized
 
         class scales:
@@ -215,8 +215,8 @@ class PaiCfg(LeggedRobotCfg):
             low_speed = 0.05
             track_vel_hard = 0.2
             # base pos
-            default_hip_roll_joint_pos = 2
-            default_thigh_joint_pos = 0.5
+            default_hip_roll_joint_pos = 4
+            default_thigh_joint_pos = 2
             default_ankle_roll_pos = 0.5
             orientation = 0.5
             base_height = 0.5
