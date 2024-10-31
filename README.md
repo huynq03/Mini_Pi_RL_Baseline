@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Pi_rl_baseline
 
 该基线工作提供了一个基于 NVIDIA Isaac Gym 的强化学习环境，对 高擎机电的双足机器人 Pi Pi_rl_baseline 还整合了从 Isaac Gym 到 Mujoco 的sim2sim框架，使用户能够在不同的物理模拟中验证训练得到的策略，以确保策略的稳健性和泛化能力。
@@ -47,27 +47,8 @@ python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/p
 
 # 运行我们提供的训练好的policy
 python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_example.pt
-
-=======
-
-# **High-Torque Pi RL Baseline**
-
-## **基础环境配置** ：
-
-1. 安装conda：https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
-2. 创建conda环境：
-   推荐使用python3.8，myenv为环境名称，可自定义。
-
-```Plain
- conda create -n myenv python=3.8
 ```
 
-3. 在命令行中输出指令，查看当前主机的cuda版本：
-
-```Plain
-nvidia-smi
->>>>>>> origin/master
-```
 #### Parameters
 
 - **CPU and GPU Usage**: 使用CPU运行仿真, 同时设置 `--sim_device=cpu` 和 `--rl_device=cpu`. 使用指定GPU运行仿真，同时设置 `--sim_device=cuda:{0,1,2...}` 和 `--rl_device={0,1,2...}`. 请注意，`CUDA_VISIBLE_DEVICES` 不适用，并且匹配 `--sim_device` 和 `--rl_device` 的设置至关重要。
@@ -75,34 +56,13 @@ nvidia-smi
 - **Rendering Control**: 在训练期间按 `v` 键开启或关闭渲染.
 - **Policy Location**: 训练好的模型保存在 `humanoid/logs/<experiment_name>/<date_time>_<run_name>/model_<iteration>.pt`.
 
-<<<<<<< HEAD
+
 #### Command-Line Arguments
 
 进行RL训练，请参考 `humanoid/utils/helpers.py`.
 进行sim2sim，请参考 `humanoid/scripts/sim2sim.py`.
-=======
-如图CUDA版本为12.5，如果输入该指令没有成功显示出来如图的参数，请给自己电脑安装CUDA驱动。
 
-![](https://lingdongfangcheng.feishu.cn/space/api/box/stream/download/asynccode/?code=MzcyNjBmOWVjNTU3NTA0ZWUxNWZlMjQwMTI3MzcwZTNfS1JlbkpTcmVxZDYzbTNWNDNYb1Y1b1lXRUk3NjZRZ1ZfVG9rZW46SjNBSmJnUGNyb1dQQ3l4VXI1U2NJYWswblhmXzE3Mjg0NDMxNDU6MTcyODQ0Njc0NV9WNA)
 
-CUDA驱动安装可以在命令行中使用apt安装，推荐使用最新版本
-
-```Plain
-sudo apt install nvidia-driver-560
-```
-
-![](https://lingdongfangcheng.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDdmZWI5OTM2OTI0M2EzMDU4OThjYjE1NDUxMzU4NTVfd2d4Z29ubldYdlNnemxrb0F2b2JYWTBISzRSNmtXQUNfVG9rZW46VnFZSmJjSGRpb2kzOTd4amxPbWNUcDFtbjJlXzE3Mjg0NDMxNDU6MTcyODQ0Njc0NV9WNA)
-
-4. 在conda环境中安装系列包：
-   首先打开一个终端，在命令行中输入指令以激活conda环境：conda activate myenv
-
-   1. pytorch：
-      打开pytorch官网：https://pytorch.org/
->>>>>>> origin/master
-
-      根据电脑的CUDA版本进行安装，复制下面的指令到命令行中进行安装。CUDA具有向下兼容的特性，在选择cumpute platform时，所选的CUDA版本不得高于电脑的CUDA版本。
-
-<<<<<<< HEAD
 1. 每个环境都依赖于一个 `env` 文件（`legged_robot.py`）和一个 `config` 文件（`legged_robot_config.py`）。后者包含两个类：`LeggedRobotCfg`（包含所有环境参数）和 `LeggedRobotCfgPPO`（表示所有训练参数）。
 2. `env` 和 `config` 类都使用继承。
 3. `cfg` 中指定的非零奖励将相应名称的函数贡献给总奖励。
@@ -113,55 +73,20 @@ sudo apt install nvidia-driver-560
 基础环境“legged_robot”构建了一个崎岖地形运动任务。相应的配置未指定机器人资产（URDF/MJCF）和奖励量表。
 
 1. 如果您需要添加新环境，请在“envs/”目录中创建一个新文件夹，其中包含名为“<your_env>_config.py”的配置文件。新配置应继承自现有环境配置。
-
 2. 如果提议使用新机器人：
-- 将相应的资产插入“resources/”文件夹中。
-- 在“cfg”文件中，设置资产的路径，定义主体名称、default_joint_positions 和 PD 增益。指定所需的“train_cfg”和环境的名称（python 类）。
-- 在“train_cfg”中，设置“experiment_name”和“run_name”。
+
+   - 将相应的资产插入“resources/”文件夹中。
+   - 在“cfg”文件中，设置资产的路径，定义主体名称、default_joint_positions 和 PD 增益。指定所需的“train_cfg”和环境的名称（python 类）。
+   - 在“train_cfg”中，设置“experiment_name”和“run_name”。
 
 3. 如果需要，请在“<your_env>.py”中创建您的环境。从现有环境继承，覆盖所需功能和/或添加您的奖励功能。
 4. 在 `humanoid/envs/__init__.py` 中注册您的环境。
 5. 根据需求修改或调整 `cfg` 或 `cfg_train` 中的其他参数。要删除奖励，请将其比例设置为零。避免修改其他环境的参数！
 6. 如果您想要新的机器人/环境来执行 sim2sim，您可能需要修改 `humanoid/scripts/sim2sim.py`：
-- 检查 MJCF 和 URDF 之间的机器人关节映射。
-- 根据您训练的策略更改机器人的初始关节位置。
+
+   - 检查 MJCF 和 URDF 之间的机器人关节映射。
+   - 根据您训练的策略更改机器人的初始关节位置。
 
 ## Acknowledgment
 
 pai_rl_baseline 的实现依赖于 [legged_gym](https://github.com/leggedrobotics/legged_gym) 项目的资源。
-=======
-      ![](https://lingdongfangcheng.feishu.cn/space/api/box/stream/download/asynccode/?code=YjA0NzA2ODA2ZDQ3ZTY4ZjQ2NWU1NDMxNjIwZjVlOGVfdDl4R2JwSlZYb2hRNlJHSXhwcjVUZnlSUjdMRjFLRjRfVG9rZW46R0kzWmJxY2xlb1FkM2l4anpUVmNpdlZUbmtoXzE3Mjg0NDMxNDU6MTcyODQ0Njc0NV9WNA)
-   2. Isaac Gym Preview 4:
-      进入官网下载：https://developer.nvidia.com/isaac-gym
-      将会得到一个压缩文件为 `IsaacGym_Preview_4_Package.tar.gz`然后打开压缩包解压，得到文件夹 `isaacgym`，进入解压后的文件夹，激活conda环境后进行安装。
-
-   在命令行中输入指令：
-
-   ```Plain
-   cd isaacgym/python
-   conda activate myenv
-   pip install -e .
-   ```
-
-   1. pi_rl_baseline:
-      Git 源代码,并使用pip进行安装：
-
-   ```Bash
-   git clone https://github.com/HighTorque-Locomotion/pi_rl_baseline.git
-   cd pi_rl_baseline 
-   pip install -e .
-   ```
-
-## **使用指南：**
-
-  示例：
-
-```Bash
-# 启动 4096 个环境中的 PPO 策略训练 
-python scripts/train.py --headless --num_envs 4096
-# 评估训练好的最新的策略，并自动导出一个适合部署的JIT模型
-python scripts/play.py
-# sim2sim 使用导出的JIT模型，在mujoco中进行 sim-to-sim测试评估
-python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_1.pt
-```
->>>>>>> origin/master
