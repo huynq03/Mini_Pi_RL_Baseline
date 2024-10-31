@@ -264,11 +264,7 @@ class PaiCfgPPO(LeggedRobotCfgPPO):
     class runner:
         policy_class_name = 'ActorCritic'
         algorithm_class_name = 'PPO'
-<<<<<<< HEAD
         num_steps_per_env = 24  # per iteration
-=======
-        num_steps_per_env = 25  # per iteration
->>>>>>> origin/master
         max_iterations = 10001  # number of policy updates
 
         # logging
