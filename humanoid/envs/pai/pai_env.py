@@ -28,14 +28,14 @@
 # Copyright (c) 2024 Beijing RobotEra TECHNOLOGY CO.,LTD. All rights reserved.
 
 
-from humanoid.envs.base.legged_robot_config import LeggedRobotCfg
+# from humanoid.envs.base.legged_robot_config import LeggedRobotCfg
 
 from isaacgym.torch_utils import *
 from isaacgym import gymtorch, gymapi
 
 import torch
 from humanoid.envs import LeggedRobot
-
+from humanoid.envs.pai.pai_config import PaiCfg
 from humanoid.utils.terrain import HumanoidTerrain
 
 # from collections import deque
@@ -85,7 +85,7 @@ class PaiFreeEnv(LeggedRobot):
     """
 
     def __init__(
-        self, cfg: LeggedRobotCfg, sim_params, physics_engine, sim_device, headless
+        self, cfg: PaiCfg, sim_params, physics_engine, sim_device, headless
     ):
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
         self.last_feet_z = 0.05
@@ -530,7 +530,7 @@ class PaiFreeEnv(LeggedRobot):
         """
         error = self.commands[:, :2] - self.base_lin_vel[:, :2]
         error *= 1.0 / (1.0 + torch.abs(self.commands[:, :2]))
-        rew = self._neg_sqrd_exp(error, a=self.cfg.rewards.tracking_sigma).sum(dim=1)/2
+        rew = self._neg_sqrd_exp(error, a=self.cfg.rewards.tracking_sigma_lin).sum(dim=1)/2
         return rew
 
     def _reward_tracking_ang_vel(self):
@@ -541,7 +541,7 @@ class PaiFreeEnv(LeggedRobot):
 
         error = self.commands[:, 2] - self.base_ang_vel[:, 2]
         error *= 1.0 / (1.0 + torch.abs(self.commands[:, 2]))
-        rew = self._neg_sqrd_exp(error, a=self.cfg.rewards.tracking_sigma)
+        rew = self._neg_sqrd_exp(error, a=self.cfg.rewards.tracking_sigma_ang)
         # print(rew.size())
         return rew
 
@@ -682,10 +682,10 @@ class PaiFreeEnv(LeggedRobot):
         """ shorthand helper for negative exponential e^(-x/a)
             a: range of x
         """
-        return torch.exp(-(x/a)/self.cfg.rewards.tracking_sigma)
+        return torch.exp(-(x/a)/a)
 
     def _neg_sqrd_exp(self, x, a=1):
         """ shorthand helper for negative squared exponential e^(-(x/a)^2)
             a: range of x
         """
-        return torch.exp(-torch.square(x/a)/self.cfg.rewards.tracking_sigma)
+        return torch.exp(-torch.square(x/a)/a)

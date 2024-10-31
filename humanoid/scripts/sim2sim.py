@@ -43,9 +43,9 @@ import pandas as pd
 
 
 class cmd:
-    vx = 0.4
-    vy = 0.0
-    dyaw = 0.0
+    vx = 0.2
+    vy = 0.
+    dyaw = 0.
 
 
 def quaternion_to_euler_array(quat):
@@ -216,17 +216,14 @@ if __name__ == '__main__':
     class Sim2simCfg(PaiCfg):
 
         class sim_config:
-            if args.terrain:
-                mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/XBot/mjcf/XBot-L-terrain.xml'
-            else:
-                mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/pi_12dof_release_v1/mjcf/pi_12dof_release_v1.xml'
+            mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/pi_12dof_release_v1/mjcf/pi_12dof_release_v1.xml'
             sim_duration = 60.0
             dt = 0.001
             decimation = 20
 
         class robot_config:
-            kps = [40,40,40,40,30,10]*(2)
-            kds = 0.6 * np.ones(12, dtype=np.double)
+            kps = [40,20,20,40,30,10]*(2)
+            kds = [.8,.6,.6,.8,.6,.6]*(2)
             tau_limit = 40. * np.ones(12, dtype=np.double)
 
     policy = torch.jit.load(args.load_model)

@@ -4,106 +4,87 @@
 
 ## 安装
 
-1. Generate a new Python virtual environment with Python 3.8 using `conda create -n myenv python=3.8`.
-2. For the best performance, we recommend using NVIDIA driver version 525 `sudo apt install nvidia-driver-525`. The minimal driver version supported is 515. If you're unable to install version 525, ensure that your system has at least version 515 to maintain basic functionality.
-3. Install PyTorch 1.13 with Cuda-11.7:
-   - `conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia`
-4. Install numpy-1.23 with `conda install numpy=1.23`.
-5. Install Isaac Gym:
-   - Download and install Isaac Gym Preview 4 from https://developer.nvidia.com/isaac-gym.
-   - `cd isaacgym/python && pip install -e .`
-   - Run an example with `cd examples && python 1080_balls_of_solitude.py`.
-   - Consult `isaacgym/docs/index.html` for troubleshooting.
-6. Install livelybot_rl_control:
-   - Clone this repository.
-   - `cd livelybot_rl_control && pip install -e .`
+1. 使用 `miniconda` 或 `anaconda` 创建一个虚拟环境 `conda create -n pi_env python=3.8`.
+2. 使用 `apt` 安装nvidia显卡驱动 `sudo apt install nvidia-driver-525`,驱动版本至少为515，因为驱动是向下兼容的，所以也可以安装更高版本的驱动。安装完成后，在命令行中使用命令 `nvidia-smi` 以查看驱动的CUDA版本。可以看到示例图片中的CUDA版本为12.4，驱动版本为550。
 
+   ![1730344376083](image/README/1730344376083.png)
+3. 安装最新版本的 `Pytorch` : 进入 `Pytorch` 官网 https://pytorch.org/ ，`Package `选项选择 `Conda `,`Compute Platform`选择合适的 `CUDA` 版本。`CUDA` 是一个向下兼容，但不向上兼容的软件库，所以所选择的 `CUDA` 版本要小于等于电脑安装的版本。
 
+   ![1730344921405](image/README/1730344921405.png)
+
+   ```
+   conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
+   ```
+4. 使用 `conda` 安装numpy `conda install numpy=1.23`.
+5. 安装 `Isaac Gym`:
+
+   - 在Nvidia官网下载并安装 `Isaac Gym Preview 4` `https://developer.nvidia.com/isaac-gym`.
+   - 激活conda环境，并进入 `isaacgym`的包中进行安装 ： `cd isaacgym/python && pip install -e .`
+   - 可以通过运行自带的示例脚本，测试环境安装是否成功： `cd examples && python 1080_balls_of_solitude.py`.
+   - 请参阅 `isaacgym/docs/index.html` 以进行故障排除。
+6. 安装本baseline:
+
+   - 克隆此仓库： `git clone https://github.com/HighTorque-Locomotion/pi_rl_baseline.git`.
+   - `cd pi_rl_baseline && pip install -e .`
 
 ## Usage Guide
 
 #### Examples
 
 ```bash
-# Launching PPO Policy Training for 'v1' Across 4096 Environments
-# This command initiates the PPO algorithm-based training for the humanoid task.
+# 使用 4096 个环境，并以“v1”为训练版本进行 PPO policy 训练
+# 该命令将会开始机器人的训练任务.
 python scripts/train.py --task=pai_ppo --run_name v1 --headless --num_envs 4096
 
-# Evaluating the Trained PPO Policy 'v1'
-# This command loads the 'v1' policy for performance assessment in its environment. 
-# Additionally, it automatically exports a JIT model, suitable for deployment purposes.
+# 评估训练好的policy
+# 此命令将会加载“v1”policy以在其环境中进行性能评估。
+# 此外，它还会自动导出适合部署目的的 JIT 模型。
 python scripts/play.py --task=pai_ppo --run_name v1
 
-# Implementing Simulation-to-Simulation Model Transformation
-# This command facilitates a sim-to-sim transformation using exported 'v1' policy.
+# 通过使用Mujoco实现sim2sim
 python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_1.pt
 
-# Run our trained policy
+# 运行我们提供的训练好的policy
 python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_example.pt
 
 ```
+#### Parameters
 
-#### 1. Default Tasks
+- **CPU and GPU Usage**: 使用CPU运行仿真, 同时设置 `--sim_device=cpu` 和 `--rl_device=cpu`. 使用指定GPU运行仿真，同时设置 `--sim_device=cuda:{0,1,2...}` 和 `--rl_device={0,1,2...}`. 请注意，`CUDA_VISIBLE_DEVICES` 不适用，并且匹配 `--sim_device` 和 `--rl_device` 的设置至关重要。
+- **Headless Operation**: 使用 `--headless` 参数用于无渲染运行.
+- **Rendering Control**: 在训练期间按 `v` 键开启或关闭渲染.
+- **Policy Location**: 训练好的模型保存在 `humanoid/logs/<experiment_name>/<date_time>_<run_name>/model_<iteration>.pt`.
 
-- **pai_ppo**
-   - Purpose: Baseline, PPO policy, Multi-frame low-level control
-   - Observation Space: Variable $(47 \times H)$ dimensions, where $H$ is the number of frames
-   - $[O_{t-H} ... O_t]$
-   - Privileged Information: $73$ dimensions
+#### Command-Line Arguments
 
-#### 2. PPO Policy
-- **Training Command**: For training the PPO policy, execute:
-  ```
-  python humanoid/scripts/train.py --task=humanoid_ppo --load_run log_file_path --name run_name
-  ```
-- **Running a Trained Policy**: To deploy a trained PPO policy, use:
-  ```
-  python humanoid/scripts/play.py --task=humanoid_ppo --load_run log_file_path --name run_name
-  ```
-- By default, the latest model of the last run from the experiment folder is loaded. However, other run iterations/models can be selected by adjusting `load_run` and `checkpoint` in the training config.
-
-#### 3. Sim-to-sim
-
-- **Mujoco-based Sim2Sim Deployment**: Utilize Mujoco for executing simulation-to-simulation (sim2sim) deployments with the command below:
-  ```
-  python scripts/sim2sim.py --load_model /path/to/export/model.pt
-  ```
-
-#### 4. Parameters
-- **CPU and GPU Usage**: To run simulations on the CPU, set both `--sim_device=cpu` and `--rl_device=cpu`. For GPU operations, specify `--sim_device=cuda:{0,1,2...}` and `--rl_device={0,1,2...}` accordingly. Please note that `CUDA_VISIBLE_DEVICES` is not applicable, and it's essential to match the `--sim_device` and `--rl_device` settings.
-- **Headless Operation**: Include `--headless` for operations without rendering.
-- **Rendering Control**: Press 'v' to toggle rendering during training.
-- **Policy Location**: Trained policies are saved in `humanoid/logs/<experiment_name>/<date_time>_<run_name>/model_<iteration>.pt`.
-
-#### 5. Command-Line Arguments
-For RL training, please refer to `humanoid/utils/helpers.py#L161`.
-For the sim-to-sim process, please refer to `humanoid/scripts/sim2sim.py#L169`.
+进行RL训练，请参考 `humanoid/utils/helpers.py`.
+进行sim2sim，请参考 `humanoid/scripts/sim2sim.py`.
 
 ## Code Structure
 
-1. Every environment hinges on an `env` file (`legged_robot.py`) and a `configuration` file (`legged_robot_config.py`). The latter houses two classes: `LeggedRobotCfg` (encompassing all environmental parameters) and `LeggedRobotCfgPPO` (denoting all training parameters).
-2. Both `env` and `config` classes use inheritance.
-3. Non-zero reward scales specified in `cfg` contribute a function of the corresponding name to the sum-total reward.
-4. Tasks must be registered with `task_registry.register(name, EnvClass, EnvConfig, TrainConfig)`. Registration may occur within `envs/__init__.py`, or outside of this repository.
+1. 每个环境都依赖于一个 `env` 文件（`legged_robot.py`）和一个 `config` 文件（`legged_robot_config.py`）。后者包含两个类：`LeggedRobotCfg`（包含所有环境参数）和 `LeggedRobotCfgPPO`（表示所有训练参数）。
+2. `env` 和 `config` 类都使用继承。
+3. `cfg` 中指定的非零奖励将相应名称的函数贡献给总奖励。
+4. 必须使用 `task_registry.register(name, EnvClass, EnvConfig, TrainConfig)` 注册任务。注册可能发生在 `envs/__init__.py` 内，也可能发生在此存储库之外。
 
+## Add a new environment
 
-## Add a new environment 
+基础环境“legged_robot”构建了一个崎岖地形运动任务。相应的配置未指定机器人资产（URDF/MJCF）和奖励量表。
 
-The base environment `legged_robot` constructs a rough terrain locomotion task. The corresponding configuration does not specify a robot asset (URDF/ MJCF) and no reward scales.
+1. 如果您需要添加新环境，请在“envs/”目录中创建一个新文件夹，其中包含名为“<your_env>_config.py”的配置文件。新配置应继承自现有环境配置。
 
-1. If you need to add a new environment, create a new folder in the `envs/` directory with a configuration file named `<your_env>_config.py`. The new configuration should inherit from existing environment configurations.
-2. If proposing a new robot:
-    - Insert the corresponding assets in the `resources/` folder.
-    - In the `cfg` file, set the path to the asset, define body names, default_joint_positions, and PD gains. Specify the desired `train_cfg` and the environment's name (python class).
-    - In the `train_cfg`, set the `experiment_name` and `run_name`.
-3. If needed, create your environment in `<your_env>.py`. Inherit from existing environments, override desired functions and/or add your reward functions.
-4. Register your environment in `humanoid/envs/__init__.py`.
-5. Modify or tune other parameters in your `cfg` or `cfg_train` as per requirements. To remove the reward, set its scale to zero. Avoid modifying the parameters of other environments!
-6. If you want a new robot/environment to perform sim2sim, you may need to modify `humanoid/scripts/sim2sim.py`: 
-    - Check the joint mapping of the robot between MJCF and URDF.
-    - Change the initial joint position of the robot according to your trained policy.
+2. 如果提议使用新机器人：
+- 将相应的资产插入“resources/”文件夹中。
+- 在“cfg”文件中，设置资产的路径，定义主体名称、default_joint_positions 和 PD 增益。指定所需的“train_cfg”和环境的名称（python 类）。
+- 在“train_cfg”中，设置“experiment_name”和“run_name”。
+
+3. 如果需要，请在“<your_env>.py”中创建您的环境。从现有环境继承，覆盖所需功能和/或添加您的奖励功能。
+4. 在 `humanoid/envs/__init__.py` 中注册您的环境。
+5. 根据需求修改或调整 `cfg` 或 `cfg_train` 中的其他参数。要删除奖励，请将其比例设置为零。避免修改其他环境的参数！
+6. 如果您想要新的机器人/环境来执行 sim2sim，您可能需要修改 `humanoid/scripts/sim2sim.py`：
+- 检查 MJCF 和 URDF 之间的机器人关节映射。
+- 根据您训练的策略更改机器人的初始关节位置。
 
 ## Acknowledgment
 
-The implementation of livelybot_rl_control relies on resources from [legged_gym](https://github.com/leggedrobotics/legged_gym)  and [humanoid-gym](https://github.com/roboterax/humanoid-gym) projects.
-
+pai_rl_baseline 的实现依赖于 [legged_gym](https://github.com/leggedrobotics/legged_gym) 项目的资源。

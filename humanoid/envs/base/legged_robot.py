@@ -788,8 +788,8 @@ class LeggedRobot(BaseTask):
 
         heights1 = self.height_samples[px, py]
         heights2 = self.height_samples[px+1, py]
-        heightXBotL = self.height_samples[px, py+1]
+        heightL = self.height_samples[px, py+1]
         heights = torch.min(heights1, heights2)
-        heights = torch.min(heights, heightXBotL)
+        heights = torch.min(heights, heightL)
 
         return heights.view(self.num_envs, -1) * self.terrain.cfg.vertical_scale

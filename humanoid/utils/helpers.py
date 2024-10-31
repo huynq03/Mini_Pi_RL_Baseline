@@ -163,7 +163,7 @@ def get_args():
         {
             "name": "--task",
             "type": str,
-            "default": "XBotL_free",
+            "default": "pai_ppo",
             "help": "Resume training or start testing from a checkpoint. Overrides config file if provided.",
         },
         {

@@ -176,7 +176,7 @@ class OnPolicyRunner:
             )
         )
 
-    def log(self, locs, width=80, pad=35):
+    def log(self, locs, width=80, pad=50):
         self.tot_timesteps += self.num_steps_per_env * self.env.num_envs
         self.tot_time += locs["collection_time"] + locs["learn_time"]
         iteration_time = locs["collection_time"] + locs["learn_time"]
