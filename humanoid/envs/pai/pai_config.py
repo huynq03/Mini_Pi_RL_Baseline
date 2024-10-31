@@ -33,7 +33,7 @@ from humanoid.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotCf
 
 class PaiCfg(LeggedRobotCfg):
     """
-    Configuration class for the XBotL humanoid robot.
+    Configuration class for the high-torque Pi robot.
     """
     class env(LeggedRobotCfg.env):
         # change the observation dim
@@ -264,7 +264,11 @@ class PaiCfgPPO(LeggedRobotCfgPPO):
     class runner:
         policy_class_name = 'ActorCritic'
         algorithm_class_name = 'PPO'
+<<<<<<< HEAD
         num_steps_per_env = 24  # per iteration
+=======
+        num_steps_per_env = 25  # per iteration
+>>>>>>> origin/master
         max_iterations = 10001  # number of policy updates
 
         # logging

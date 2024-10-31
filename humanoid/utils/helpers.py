@@ -181,6 +181,7 @@ def get_args():
             "name": "--run_name",
             "type": str,
             "help": "Name of the run. Overrides config file if provided.",
+            "default": "v1",
         },
         {
             "name": "--load_run",
