@@ -43,7 +43,7 @@ import pandas as pd
 
 
 class cmd:
-    vx = 0.2
+    vx = 0.4
     vy = 0.
     dyaw = 0.
 
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deployment script.')
     parser.add_argument('--load_model', type=str, required=False,
                         help='Run to load from.',
-                        default=f"{LEGGED_GYM_ROOT_DIR}/logs/Pai_ppo/exported/policies/policy_1.pt")
+                        default=f"{LEGGED_GYM_ROOT_DIR}/logs/Pai_ppo/exported/policies/policy_example.pt")
     parser.add_argument('--terrain', action='store_true', help='terrain or plane')
     args = parser.parse_args()
 
@@ -223,7 +223,7 @@ if __name__ == '__main__':
 
         class robot_config:
             kps = [40,20,20,40,30,10]*(2)
-            kds = [.8,.6,.6,.8,.6,.6]*(2)
+            kds = [1.2,.9,.9,1.2,.9,.6]*(2)
             tau_limit = 40. * np.ones(12, dtype=np.double)
 
     policy = torch.jit.load(args.load_model)

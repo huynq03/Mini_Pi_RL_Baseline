@@ -94,11 +94,7 @@ class OnPolicyRunner:
         # initialize writer
         if self.log_dir is not None and self.writer is None:
             wandb.init(
-<<<<<<< HEAD
                 project="pai_ppo",
-=======
-                project="high-torque",
->>>>>>> origin/master
                 sync_tensorboard=True,
                 name=self.wandb_run_name,
                 config=self.all_cfg,
