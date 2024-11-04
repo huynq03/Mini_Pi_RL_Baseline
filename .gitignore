@@ -1,5 +1,6 @@
 .vscode
 logs/Pai_ppo/Oct*
+logs/Pai_ppo/Nov*
 videos
 wandb
 humanoid/__pycache__

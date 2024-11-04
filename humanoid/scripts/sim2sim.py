@@ -41,101 +41,114 @@ import torch
 import csv
 import pandas as pd
 
-
+import matplotlib.pyplot as plt
+import time
+import cv2
+import threading
+import glfw
+import matplotlib.animation as animation
 class cmd:
-    vx = 0.4
+    vx = 0.
     vy = 0.
     dyaw = 0.
 
+class mujoco_visual:
+    def __init__(self) -> None:
+        self.count_lowlevel = 0
+        self.close = 1
+        self.mujoco_close = 1
+        self.stop_event = threading.Event()
+        self.vel = [0,0,0]
+        self.w = [0,0,0]
+    def quaternion_to_euler_array(self,quat):
+        # Ensure quaternion is in the correct format [x, y, z, w]
+        x, y, z, w = quat
+        
+        # Roll (x-axis rotation)
+        t0 = +2.0 * (w * x + y * z)
+        t1 = +1.0 - 2.0 * (x * x + y * y)
+        roll_x = np.arctan2(t0, t1)
+        
+        # Pitch (y-axis rotation)
+        t2 = +2.0 * (w * y - z * x)
+        t2 = np.clip(t2, -1.0, 1.0)
+        pitch_y = np.arcsin(t2)
+        
+        # Yaw (z-axis rotation)
+        t3 = +2.0 * (w * z + x * y)
+        t4 = +1.0 - 2.0 * (y * y + z * z)
+        yaw_z = np.arctan2(t3, t4)
+        
+        # Returns roll, pitch, yaw in a NumPy array in radians
+        return np.array([roll_x, pitch_y, yaw_z]) 
 
-def quaternion_to_euler_array(quat):
-    # Ensure quaternion is in the correct format [x, y, z, w]
-    x, y, z, w = quat
-    
-    # Roll (x-axis rotation)
-    t0 = +2.0 * (w * x + y * z)
-    t1 = +1.0 - 2.0 * (x * x + y * y)
-    roll_x = np.arctan2(t0, t1)
-    
-    # Pitch (y-axis rotation)
-    t2 = +2.0 * (w * y - z * x)
-    t2 = np.clip(t2, -1.0, 1.0)
-    pitch_y = np.arcsin(t2)
-    
-    # Yaw (z-axis rotation)
-    t3 = +2.0 * (w * z + x * y)
-    t4 = +1.0 - 2.0 * (y * y + z * z)
-    yaw_z = np.arctan2(t3, t4)
-    
-    # Returns roll, pitch, yaw in a NumPy array in radians
-    return np.array([roll_x, pitch_y, yaw_z]) 
+    def get_obs(self,data):
+        '''Extracts an observation from the mujoco data structure
+        '''
+        q = data.qpos.astype(np.double)
+        dq = data.qvel.astype(np.double)
+        quat = data.sensor('orientation').data[[1, 2, 3, 0]].astype(np.double)
+        r = R.from_quat(quat)
+        v = r.apply(data.qvel[:3], inverse=True).astype(np.double)  # In the base frame
+        self.vel = [v[0],v[1],v[2]]
+        omega = data.sensor('angular-velocity').data.astype(np.double)
+        self.w = omega
+        gvec = r.apply(np.array([0., 0., -1.]), inverse=True).astype(np.double)
+        return (q, dq, quat, v, omega, gvec)
 
-def get_obs(data):
-    '''Extracts an observation from the mujoco data structure
-    '''
-    q = data.qpos.astype(np.double)
-    dq = data.qvel.astype(np.double)
-    quat = data.sensor('orientation').data[[1, 2, 3, 0]].astype(np.double)
-    r = R.from_quat(quat)
-    v = r.apply(data.qvel[:3], inverse=True).astype(np.double)  # In the base frame
-    omega = data.sensor('angular-velocity').data.astype(np.double)
-    gvec = r.apply(np.array([0., 0., -1.]), inverse=True).astype(np.double)
-    return (q, dq, quat, v, omega, gvec)
+    def pd_control(self,target_q, q, kp, target_dq, dq, kd):
+        '''Calculates torques from position commands
+        '''
+        # print("p:", (target_q - q) * kp )
+        # print("d", (target_dq - dq) * kd)
+        return (target_q - q) * kp + (target_dq - dq) * kd
 
-def pd_control(target_q, q, kp, target_dq, dq, kd):
-    '''Calculates torques from position commands
-    '''
-    # print("p:", (target_q - q) * kp )
-    # print("d", (target_dq - dq) * kd)
-    return (target_q - q) * kp + (target_dq - dq) * kd
+    def plot_thread(self):
+        plt.ion()  # 打开交互模式
+        fig, ax = plt.subplots()
+        t, cmd_x,true_x = [], [], []
+        line_cmd_x, = ax.plot(t, cmd_x, 'r-')  # 初始化一条红色线条
+        line_true_x, = ax.plot(t, true_x, 'b-')  # 初始化一条红色线条
 
-def run_mujoco(policy, cfg):
-    """
-    Run the Mujoco simulation using the provided policy and configuration.
+        while not self.stop_event.is_set():
+            t.append(self.count_lowlevel*0.001)
+            cmd_x.append(cmd.vx)
+            true_x.append(self.vel[0])
+            # true_x.append(self.vel[1])
+            line_cmd_x.set_xdata(t)
+            line_cmd_x.set_ydata(cmd_x)
+            line_true_x.set_xdata(t)
+            line_true_x.set_ydata(true_x)
+            ax.relim()  # 重新计算坐标轴范围
+            ax.autoscale_view()  # 自动缩放视图
+            plt.draw()  # 绘制更新
+            plt.pause(0.001)
+        plt.savefig('sine_wave.png')  # 保存为 PNG 格式
+        plt.ioff()
+        plt.close('all')
 
-    Args:
-        policy: The policy used for controlling the simulation.
-        cfg: The configuration object containing simulation settings.
+    def run_mujoco(self,policy, cfg):
+        model = mujoco.MjModel.from_xml_path(cfg.sim_config.mujoco_model_path)
+        model.opt.timestep = cfg.sim_config.dt
+        data = mujoco.MjData(model)
+        mujoco.mj_step(model, data)
+        viewer = mujoco_viewer.MujocoViewer(model, data)
+        self.window = viewer.window
+        target_q = np.zeros((cfg.env.num_actions), dtype=np.double)
+        action = np.zeros((cfg.env.num_actions), dtype=np.double)
 
-    Returns:
-        None
-    """
-    model = mujoco.MjModel.from_xml_path(cfg.sim_config.mujoco_model_path)
-    model.opt.timestep = cfg.sim_config.dt
-    data = mujoco.MjData(model)
-    mujoco.mj_step(model, data)
-    viewer = mujoco_viewer.MujocoViewer(model, data)
-
-    target_q = np.zeros((cfg.env.num_actions), dtype=np.double)
-    action = np.zeros((cfg.env.num_actions), dtype=np.double)
-
-    hist_obs = deque()
-    for _ in range(cfg.env.frame_stack):
-        hist_obs.append(np.zeros([1, cfg.env.num_single_obs], dtype=np.double))
-
-    count_lowlevel = 0
-    
-    count_csv = 0
-    with open('sim2sim_robot_states.csv', 'w', newline='') as csvfile:
-        csvwriter = csv.writer(csvfile)
-        # csvwriter.writerow([f'q_{i}' for i in range(19)])
-        csvwriter.writerow([
-            "sim2sim_base_euler_roll", "sim2sim_base_euler_pitch", "sim2sim_base_euler_yaw",
-            # "sim2sim_base_quat_x", "sim2sim_base_quat_y", "sim2sim_base_quat_z", "sim2sim_base_quat_w",
-            "sim2sim_dof_pos_0", "sim2sim_dof_pos_1", "sim2sim_dof_pos_2", "sim2sim_dof_pos_3",
-            "sim2sim_dof_pos_4", "sim2sim_dof_pos_5", "sim2sim_dof_pos_6", "sim2sim_dof_pos_7",
-            "sim2sim_dof_pos_8", "sim2sim_dof_pos_9", "sim2sim_dof_pos_10", "sim2sim_dof_pos_11",
-            "sim2sim_target_dof_pos_0", "sim2sim_target_dof_pos_1", "sim2sim_target_dof_pos_2", "sim2sim_target_dof_pos_3",
-            "sim2sim_target_dof_pos_4", "sim2sim_target_dof_pos_5", "sim2sim_target_dof_pos_6", "sim2sim_target_dof_pos_7",
-            "sim2sim_target_dof_pos_8", "sim2sim_target_dof_pos_9", "sim2sim_target_dof_pos_10", "sim2sim_target_dof_pos_11",
-        ])
+        hist_obs = deque()
+        for _ in range(cfg.env.frame_stack):
+            hist_obs.append(np.zeros([1, cfg.env.num_single_obs], dtype=np.double))
 
         for _ in tqdm(range(int(cfg.sim_config.sim_duration / cfg.sim_config.dt)), desc="Simulating..."):
+            if glfw.window_should_close(self.window):
+                print("=============out mujoco==========")
+                break
             # Obtain an observation
-            q, dq, quat, v, omega, gvec = get_obs(data)
+            q, dq, quat, v, omega, gvec = self.get_obs(data)
             q = q[-cfg.env.num_actions:]
             dq = dq[-cfg.env.num_actions:]
-
             for i in range(6):
                 tmpq = q[i]
                 q[i] = q[i+6]
@@ -144,15 +157,14 @@ def run_mujoco(policy, cfg):
                 tmpdq = dq[i]
                 dq[i] = dq[i+6]
                 dq[i+6] = tmpdq
-
             # 1000hz -> 100hz
-            if count_lowlevel % cfg.sim_config.decimation == 0:
+            if self.count_lowlevel % cfg.sim_config.decimation == 0:
                 obs = np.zeros([1, cfg.env.num_single_obs], dtype=np.float32)
-                eu_ang = quaternion_to_euler_array(quat)
+                eu_ang = self.quaternion_to_euler_array(quat)
                 eu_ang[eu_ang > math.pi] -= 2 * math.pi
 
-                obs[0, 0] = math.sin(2 * math.pi * count_lowlevel * cfg.sim_config.dt  / 0.5)
-                obs[0, 1] = math.cos(2 * math.pi * count_lowlevel * cfg.sim_config.dt  / 0.5)
+                obs[0, 0] = math.sin(2 * math.pi * self.count_lowlevel * cfg.sim_config.dt  / 0.5)
+                obs[0, 1] = math.cos(2 * math.pi * self.count_lowlevel * cfg.sim_config.dt  / 0.5)
                 obs[0, 2] = cmd.vx * cfg.normalization.obs_scales.lin_vel
                 obs[0, 3] = cmd.vy * cfg.normalization.obs_scales.lin_vel
                 obs[0, 4] = cmd.dyaw * cfg.normalization.obs_scales.ang_vel
@@ -172,21 +184,9 @@ def run_mujoco(policy, cfg):
                 action[:] = policy(torch.tensor(policy_input))[0].detach().numpy()
                 action = np.clip(action, -cfg.normalization.clip_actions, cfg.normalization.clip_actions)
                 target_q = action * cfg.control.action_scale
-                
-                if count_csv < 500:
-                  csv_q = np.zeros(27)
-                  csv_euler_ang = quaternion_to_euler_array(quat)
-                  # csv_euler_ang = quaternion_to_euler_array(q[3:7])
-                  csv_q[0:3] = csv_euler_ang
-                  csv_q[3:15] = q[:]
-                  csv_q[15:] = target_q[:]
-                  csvwriter.writerow(csv_q.tolist())
-                count_csv += 1
-
             target_dq = np.zeros((cfg.env.num_actions), dtype=np.double)
-            
             # Generate PD control
-            tau = pd_control(target_q, q, cfg.robot_config.kps,
+            tau = self.pd_control(target_q, q, cfg.robot_config.kps,
                             target_dq, dq, cfg.robot_config.kds)  # Calc torques
             tau = np.clip(tau, -cfg.robot_config.tau_limit, cfg.robot_config.tau_limit)  # Clamp torques
             for i in range(6):
@@ -194,22 +194,26 @@ def run_mujoco(policy, cfg):
                 tau[i] = tau[i+6]
                 tau[i+6] = tmptau
             data.ctrl = tau
-            # print(tau)
-
+            
             mujoco.mj_step(model, data)
             viewer.render()
-            count_lowlevel += 1
-
-    viewer.close()
-
+            if self.count_lowlevel>10*1000:
+                cmd.vx = 0.3
+            if self.count_lowlevel>20*1000:
+                cmd.vx = 0.6
+            if self.count_lowlevel>40*1000:
+                cmd.vx = 0.8
+            self.count_lowlevel += 1
+        self.stop_event.set()
+        viewer.close()
 
 if __name__ == '__main__':
     import argparse
-
+    print(LEGGED_GYM_ROOT_DIR)
     parser = argparse.ArgumentParser(description='Deployment script.')
     parser.add_argument('--load_model', type=str, required=False,
                         help='Run to load from.',
-                        default=f"{LEGGED_GYM_ROOT_DIR}/logs/Pai_ppo/exported/policies/policy_example.pt")
+                        default=f"{LEGGED_GYM_ROOT_DIR}/logs/Pai_ppo/exported/policies/policy_1.pt")
     parser.add_argument('--terrain', action='store_true', help='terrain or plane')
     args = parser.parse_args()
 
@@ -227,4 +231,11 @@ if __name__ == '__main__':
             tau_limit = 40. * np.ones(12, dtype=np.double)
 
     policy = torch.jit.load(args.load_model)
-    run_mujoco(policy, Sim2simCfg())
+    a = mujoco_visual()
+    matplotlib_thread = threading.Thread(target=a.plot_thread)
+    mujoco_thread = threading.Thread(target=a.run_mujoco,args=(policy, Sim2simCfg()))
+    matplotlib_thread.start()
+    mujoco_thread.start()
+    matplotlib_thread.join()
+    mujoco_thread.join()
+    print("Both threads have finished. Main thread will now terminate.")

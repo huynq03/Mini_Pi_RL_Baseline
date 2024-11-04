@@ -45,7 +45,7 @@ class PaiCfg(LeggedRobotCfg):
         num_privileged_obs = int(c_frame_stack * (single_num_privileged_obs))
         num_actions = 12
         num_envs = 4096
-        episode_length_s = 24  # episode length in seconds
+        episode_length_s = 12  # episode length in seconds
         use_ref_actions = False
 
     class safety:

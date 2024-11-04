@@ -268,7 +268,6 @@ class LeggedRobot(BaseTask):
                 props[s].friction = self.friction_coeffs[env_id]
         return props
     
-
     def _process_dof_props(self, props, env_id):
         """ Callback allowing to store/change/randomize the DOF properties of each environment.
             Called During environment creation.
@@ -334,8 +333,6 @@ class LeggedRobot(BaseTask):
         # set small commands to zero
         self.commands[env_ids, :2] *= (torch.norm(self.commands[env_ids, :2], dim=1) > 0.2).unsqueeze(1)
 
-
-
     def _compute_torques(self, actions):
         """ Compute torques from actions.
             Actions can be interpreted as position or velocity targets given to a PD controller, or directly as scaled torques.
@@ -354,7 +351,6 @@ class LeggedRobot(BaseTask):
         torques = p_gains * (actions_scaled + self.default_dof_pos - self.dof_pos) - d_gains * self.dof_vel
         return torch.clip(torques, -self.torque_limits, self.torque_limits)
 
-    
     def _reset_dofs(self, env_ids):
         """ Resets DOF position and velocities of selected environmments
         Positions are randomly selected within 0.5:1.5 x default positions.
@@ -370,6 +366,7 @@ class LeggedRobot(BaseTask):
         self.gym.set_dof_state_tensor_indexed(self.sim,
                                               gymtorch.unwrap_tensor(self.dof_state),
                                               gymtorch.unwrap_tensor(env_ids_int32), len(env_ids_int32))
+    
     def _reset_root_states(self, env_ids):
         """ Resets ROOT states position and velocities of selected environmments
             Sets base position based on the curriculum
@@ -394,7 +391,6 @@ class LeggedRobot(BaseTask):
         self.gym.set_actor_root_state_tensor_indexed(self.sim,
                                                      gymtorch.unwrap_tensor(self.root_states),
                                                      gymtorch.unwrap_tensor(env_ids_int32), len(env_ids_int32))
-
 
     def _update_terrain_curriculum(self, env_ids):
         """ Implements the game-inspired curriculum.
