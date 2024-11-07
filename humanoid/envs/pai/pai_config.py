@@ -35,6 +35,7 @@ class PaiCfg(LeggedRobotCfg):
     """
     Configuration class for the high-torque Pi robot.
     """
+
     class env(LeggedRobotCfg.env):
         # change the observation dim
         frame_stack = 15
@@ -55,13 +56,13 @@ class PaiCfg(LeggedRobotCfg):
         torque_limit = 0.85
 
     class asset(LeggedRobotCfg.asset):
-        file = '{LEGGED_GYM_ROOT_DIR}/resources/robots/pi_12dof_release_v1/urdf/pi_12dof_release_v1_rl.urdf'
+        file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/pi_12dof_release_v1/urdf/pi_12dof_release_v1_rl.urdf"
 
         name = "Pai"
         foot_name = "ankle_roll"
         knee_name = "calf"
 
-        terminate_after_contacts_on = ['base_link']
+        terminate_after_contacts_on = ["base_link"]
         penalize_contacts_on = ["base_link"]
         self_collisions = 0  # 1 to disable, 0 to enable...bitwise filter
         flip_visual_attachments = False
@@ -69,25 +70,25 @@ class PaiCfg(LeggedRobotCfg):
         fix_base_link = False
 
     class terrain(LeggedRobotCfg.terrain):
-        mesh_type = 'plane'
+        mesh_type = "plane"
         # mesh_type = 'trimesh'
         curriculum = False
         # rough terrain only:
         measure_heights = False
         static_friction = 0.6
         dynamic_friction = 0.6
-        terrain_length = 8.
-        terrain_width = 8.
+        terrain_length = 8.0
+        terrain_width = 8.0
         num_rows = 20  # number of terrain rows (levels)
         num_cols = 20  # number of terrain cols (types)
         max_init_terrain_level = 10  # starting curriculum state
         # plane; obstacles; uniform; slope_up; slope_down, stair_up, stair_down
         terrain_proportions = [0.2, 0.2, 0.4, 0.1, 0.1, 0, 0]
-        restitution = 0.
+        restitution = 0.0
 
     class noise:
         add_noise = True
-        noise_level = 0.6    # scales other values
+        noise_level = 0.6  # scales other values
 
         class noise_scales:
             dof_pos = 0.05
@@ -122,16 +123,16 @@ class PaiCfg(LeggedRobotCfg):
             "hip_roll_joint": 20.0,
             "thigh_joint": 20.0,
             "calf_joint": 40.0,
-            "ankle_pitch_joint": 30.0,
-            "ankle_roll_joint": 10.0,
+            "ankle_pitch_joint": 40.0,
+            "ankle_roll_joint": 20.0,
         }
         damping = {
-            "hip_pitch_joint": 0.8,
-            "hip_roll_joint": 0.4,
-            "thigh_joint": 0.4,
-            "calf_joint": 0.8,
-            "ankle_pitch_joint": 0.4,
-            "ankle_roll_joint": 0.4,
+            "hip_pitch_joint": 1.2,
+            "hip_roll_joint": 0.6,
+            "thigh_joint": 0.6,
+            "calf_joint": 1.0,
+            "ankle_pitch_joint": 0.8,
+            "ankle_roll_joint": 0.6,
         }
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
@@ -151,7 +152,7 @@ class PaiCfg(LeggedRobotCfg):
             num_position_iterations = 4
             num_velocity_iterations = 0
             contact_offset = 0.01  # [m]
-            rest_offset = 0.0   # [m]
+            rest_offset = 0.0  # [m]
             bounce_threshold_velocity = 0.1  # [m/s]
             max_depenetration_velocity = 1.0
             max_gpu_contact_pairs = 2**23  # 2**24 -> needed for 8000 envs and more
@@ -163,7 +164,7 @@ class PaiCfg(LeggedRobotCfg):
         randomize_friction = True
         friction_range = [0.1, 2.0]
         randomize_base_mass = True
-        added_mass_range = [-1., 1.]
+        added_mass_range = [-1.0, 1.0]
         push_robots = True
         push_interval_s = 4
         max_push_vel_xy = 0.2
@@ -173,13 +174,13 @@ class PaiCfg(LeggedRobotCfg):
     class commands(LeggedRobotCfg.commands):
         # Vers: lin_vel_x, lin_vel_y, ang_vel_yaw, heading (in heading mode ang_vel_yaw is recomputed from heading error)
         num_commands = 4
-        resampling_time = 8.  # time before command are changed[s]
+        resampling_time = 8.0  # time before command are changed[s]
         heading_command = True  # if true: compute ang vel command from heading error
 
         class ranges:
             lin_vel_x = [-0.3, 0.6]  # min max [m/s]
-            lin_vel_y = [-0.3, 0.3]   # min max [m/s]
-            ang_vel_yaw = [-0.3, 0.3]    # min max [rad/s]
+            lin_vel_y = [-0.3, 0.3]  # min max [m/s]
+            ang_vel_yaw = [-0.3, 0.3]  # min max [rad/s]
             heading = [-3.14, 3.14]
 
     class rewards:
@@ -187,9 +188,9 @@ class PaiCfg(LeggedRobotCfg):
         min_dist = 0.15
         max_dist = 0.2
         # put some settings here for LLM parameter tuning
-        target_joint_pos_scale = 0.08    # rad
-        target_feet_height = 0.02       # m
-        cycle_time = 0.4                # sec
+        target_joint_pos_scale = 0.08  # rad
+        target_feet_height = 0.02  # m
+        cycle_time = 0.4  # sec
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
         # tracking reward = exp(error*sigma)
@@ -199,14 +200,14 @@ class PaiCfg(LeggedRobotCfg):
 
         class scales:
             # reference motion tracking
-            joint_pos = 1.6                 # 1.6
-            feet_clearance = 5.
+            joint_pos = 1.6  # 1.6
+            feet_clearance = 5.0
             feet_contact_number = 1.2
             # gait
-            feet_air_time = 1.
+            feet_air_time = 1.0
             foot_slip = -0.05
-            feet_distance = 0.16   # 0.2
-            knee_distance = 0.16   # 0.2
+            feet_distance = 0.16  # 0.2
+            knee_distance = 0.16  # 0.2
             # contact
             feet_contact_forces = -0.001
             # vel tracking
@@ -223,30 +224,30 @@ class PaiCfg(LeggedRobotCfg):
             base_height = 0.5
             base_acc = 0.2
             # energy
-            action_smoothness = -0.002 
+            action_smoothness = -0.002
             torques = -1e-5
             dof_vel = -5e-5
             dof_acc = -1e-8
-            collision = -1.
-            
+            collision = -1.0
+
             termination = 1.0
 
     class normalization:
         class obs_scales:
-            lin_vel = 2.
-            ang_vel = 1.
-            dof_pos = 1.
+            lin_vel = 2.0
+            ang_vel = 1.0
+            dof_pos = 1.0
             dof_vel = 0.05
-            quat = 1.
+            quat = 1.0
             height_measurements = 5.0
-        clip_observations = 18.
-        clip_actions = 18.
 
+        clip_observations = 18.0
+        clip_actions = 18.0
 
 
 class PaiCfgPPO(LeggedRobotCfgPPO):
     seed = 5
-    runner_class_name = 'OnPolicyRunner'   # DWLOnPolicyRunner
+    runner_class_name = "OnPolicyRunner"  # DWLOnPolicyRunner
 
     class policy:
         init_noise_std = 1.0
@@ -262,15 +263,15 @@ class PaiCfgPPO(LeggedRobotCfgPPO):
         num_mini_batches = 4
 
     class runner:
-        policy_class_name = 'ActorCritic'
-        algorithm_class_name = 'PPO'
+        policy_class_name = "ActorCritic"
+        algorithm_class_name = "PPO"
         num_steps_per_env = 24  # per iteration
         max_iterations = 10001  # number of policy updates
 
         # logging
         save_interval = 100  # check for potential saves every this many iterations
-        experiment_name = 'Pai_ppo'
-        run_name = 'v1'
+        experiment_name = "Pai_ppo"
+        run_name = "v1"
         # load and resume
         resume = False
         load_run = -1  # -1 = last run

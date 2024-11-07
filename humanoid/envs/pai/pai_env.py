@@ -124,12 +124,12 @@ class PaiFreeEnv(LeggedRobot):
         self.time_out_buf = (
             self.episode_length_buf > self.max_episode_length
         )  # no terminal reward for time-outs
-        # self.reset_buf |= torch.any(
-        #     torch.abs(self.projected_gravity[:, 0:1]) > 0.8, dim=1
-        # )
-        # self.reset_buf |= torch.any(
-        #     torch.abs(self.projected_gravity[:, 1:2]) > 0.8, dim=1
-        # )
+        self.reset_buf |= torch.any(
+            torch.abs(self.projected_gravity[:, 0:1]) > 0.8, dim=1
+        )
+        self.reset_buf |= torch.any(
+            torch.abs(self.projected_gravity[:, 1:2]) > 0.8, dim=1
+        )
         # self.reset_buf |= torch.any(
         #     torch.norm(self.base_ang_vel, dim=-1, keepdim=True) > 15.0, dim=1
         # )

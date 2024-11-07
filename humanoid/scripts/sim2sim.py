@@ -226,8 +226,8 @@ if __name__ == '__main__':
             decimation = 20
 
         class robot_config:
-            kps = [40,20,20,40,30,10]*(2)
-            kds = [1.2,.9,.9,1.2,.9,.6]*(2)
+            kps = [40,20,20,40,30,20]*(2)
+            kds = [1.2,0.8,0.8,1.2,1.2,0.7]*(2)
             tau_limit = 40. * np.ones(12, dtype=np.double)
 
     policy = torch.jit.load(args.load_model)
