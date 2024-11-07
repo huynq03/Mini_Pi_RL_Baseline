@@ -127,12 +127,12 @@ class PaiCfg(LeggedRobotCfg):
             "ankle_roll_joint": 20.0,
         }
         damping = {
-            "hip_pitch_joint": 1.2,
-            "hip_roll_joint": 0.6,
-            "thigh_joint": 0.6,
-            "calf_joint": 1.0,
-            "ankle_pitch_joint": 0.8,
-            "ankle_roll_joint": 0.6,
+            "hip_pitch_joint": 0.6,
+            "hip_roll_joint": 0.4,
+            "thigh_joint": 0.4,
+            "calf_joint": 0.6,
+            "ankle_pitch_joint": 0.6,
+            "ankle_roll_joint": 0.4,
         }
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
