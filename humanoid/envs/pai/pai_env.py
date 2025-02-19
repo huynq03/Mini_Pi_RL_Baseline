@@ -558,7 +558,7 @@ class PaiFreeEnv(LeggedRobot):
             # self.rigid_state[:, self.feet_indices, 2]
             # + 
             self.rigid_state[:, self.feet_indices - 1, 2]
-        ) / 2 - 0.05063
+        )  - 0.05063
         delta_z = feet_z - self.last_feet_z
         self.feet_height += delta_z
         self.last_feet_z = feet_z
