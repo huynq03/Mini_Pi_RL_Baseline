@@ -37,7 +37,7 @@ from humanoid import LEGGED_GYM_ROOT_DIR
 
 # import isaacgym
 from humanoid.envs import *
-from humanoid.utils import  get_args, export_policy_as_jit, task_registry, Logger
+from humanoid.utils import  get_args, export_policy_as_jit, export_policy_to_onnx, task_registry, Logger
 from isaacgym.torch_utils import *
 
 import torch
@@ -80,7 +80,8 @@ def play(args):
     # export policy as a jit module (used to run it from C++)
     if EXPORT_POLICY:
         path = os.path.join(LEGGED_GYM_ROOT_DIR, 'logs', train_cfg.runner.experiment_name, 'exported', 'policies')
-        export_policy_as_jit(ppo_runner.alg.actor_critic, path)
+        # export_policy_as_jit(ppo_runner.alg.actor_critic, path)
+        export_policy_to_onnx(ppo_runner.alg.actor_critic, path) 
         print('Exported policy as jit script to: ', path)
 
     logger = Logger(env.dt)

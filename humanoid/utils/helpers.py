@@ -246,3 +246,32 @@ def export_policy_as_jit(actor_critic, path):
     model = copy.deepcopy(actor_critic.actor).to("cpu")
     traced_script_module = torch.jit.script(model)
     traced_script_module.save(path)
+
+def export_policy_to_onnx(actor_critic, path):
+    import os
+    import copy
+    import torch
+
+    os.makedirs(path, exist_ok=True)
+    model_path = os.path.join(path, "policy.onnx")
+    model = copy.deepcopy(actor_critic.actor).to("cpu")
+    model.eval()  # 设置模型为评估模式
+
+    # 创建示例输入
+    # 您需要根据模型的实际输入形状进行修改
+    batch_size = 1  # 可以根据需要调整
+    num_observations = 705 # frame_stack * num_single_obs
+    dummy_input = torch.randn(batch_size, num_observations)
+
+    # 导出模型为 ONNX 格式
+    torch.onnx.export(
+        model,                      # 模型
+        dummy_input,                # 示例输入
+        model_path,                 # 导出路径
+        export_params=True,         # 导出模型参数
+        opset_version=11,           # ONNX opset 版本，可以根据需要调整
+        do_constant_folding=True,   # 进行常量折叠优化
+        input_names=['input'],        # 输入节点名称，可以根据需要调整
+        output_names=['output'],   # 输出节点名称，可以根据需要调整
+    )
+    print(f"模型已导出为 ONNX 格式，保存路径：{model_path}")
