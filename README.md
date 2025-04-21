@@ -43,7 +43,7 @@ python scripts/train.py --task=pai_ppo --run_name v1 --headless --num_envs 4096
 python scripts/play.py --task=pai_ppo --run_name v1
 
 # 通过使用Mujoco实现sim2sim
-python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_1.pt
+python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_torch.pt
 
 # 运行我们提供的训练好的policy
 python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_example.pt
