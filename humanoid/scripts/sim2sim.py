@@ -184,7 +184,7 @@ class mujoco_visual:
             
             mujoco.mj_step(model, data)
 
-            time.sleep(0.01)#步伐频率加快建议设置0.001，步伐频率加快建议设置0.01
+            time.sleep(0.001)#步伐频率加快建议设置0.001，步伐频率加快建议设置0.01
             if self.count_lowlevel % cfg.sim_config.decimation == 0: 
                 viewer.render()
             self.count_lowlevel += 1
