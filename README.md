@@ -1,6 +1,6 @@
 
 # Pi_rl_baseline
-
+For English translation, please see below
 该基线工作提供了一个基于 NVIDIA Isaac Gym 的强化学习环境，对 高擎机电的双足机器人 Pi Pi_rl_baseline 还整合了从 Isaac Gym 到 Mujoco 的sim2sim框架，使用户能够在不同的物理模拟中验证训练得到的策略，以确保策略的稳健性和泛化能力。
 
 ## 安装
@@ -90,3 +90,95 @@ python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/p
 ## Acknowledgment
 
 pai_rl_baseline 的实现依赖于 [legged_gym](https://github.com/leggedrobotics/legged_gym) 项目的资源。
+
+# English Translation
+
+The baseline provided a reinforcement learning environment based on NVIDIA Isaac Gym. For the Pi Humanoid Robots from the HighTorque Robotics , Pi_rl_baseline also includes sim2sim framework from Isaac Gym to Mujoco, enabling users to validate their trained policies in different simulations to ensure policy robustness and generalization capabilities. 
+
+## Installation
+
+1. Use `miniconda` or `anaconda` to create a virtual environment `conda create -n pi_env python=3.8`.
+2. Use `apt` to install nvidia driver `sudo apt install nvidia-driver-525`, the driver version has to be at least 515. Installing higher version is also viable, as the driver is backward compatible. After installation, check the graphic driver's CUDA version using `nvidia-smi` . As shown in the picture, the CUDA version is 12.4, driver version is 550. 
+
+   ![1730344376083](image/README/1730344376083.png)
+3. Install the latest version of `Pytorch` : Visit `Pytorch` website https://pytorch.org/. For `Package `choose `Conda `, for `Compute Platform` choose suitable `CUDA` version. `CUDA` is backward compatible, but not forward compatible software library, so the chosen `CUDA` version needs to be smaller than the computer's installed version. 
+
+   ![1730344921405](image/README/1730344921405.png)
+
+   ```
+   conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
+   ```
+4. Use `conda` to install numpy `conda install numpy=1.23`.
+5. Install `Isaac Gym`:
+
+   - Visit Nvidia official website, download and install `Isaac Gym Preview 4` `https://developer.nvidia.com/isaac-gym`.
+   - Activate conda environment, then access `isaacgym` repository to install `cd isaacgym/python && pip install -e .`
+   - Run the example python script to test whether the environment is installed successfully: `cd examples && python 1080_balls_of_solitude.py`.
+   - Please read `isaacgym/docs/index.html` to troubleshoot. 
+6. Install this baseline:
+
+   - Clone this repository `git clone https://github.com/HighTorque-Locomotion/pi_rl_baseline.git`.
+   - `cd pi_rl_baseline && pip install -e .`
+
+## Usage Guide
+
+#### Examples
+
+```bash
+# Use 4096 environments, and using "v1" as training version to do PPO policy training. 
+# This command will initiate the robot's training task. 
+python scripts/train.py --task=pai_ppo --run_name v1 --headless --num_envs 4096
+
+# Evaluate the trained policy
+# This command will load "v1" policy for performance evaluation under its environment. 
+# In addition, it will automatically exports a JIT model suitable for deployment purposes.
+python scripts/play.py --task=pai_ppo --run_name v1
+
+# Use Mujoco to achieve sim2sim
+python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_torch.pt
+
+# Run the trained policy provided by us
+python scripts/sim2sim.py --load_model /path/to/logs/Pai_ppo/exported/policies/policy_example.pt
+```
+
+#### Parameters
+
+- **CPU and GPU Usage**: Use CPU to run the simulation, set `--sim_device=cpu` and `--rl_device=cpu` simultaneously. Use specific GPU to run the simulation, set `--sim_device=cuda:{0,1,2...}` and `--rl_device={0,1,2...}` simultaneously. Please note: `CUDA_VISIBLE_DEVICES` is not applicable, and the setting that match `--sim_device` and `--rl_device` is very important. 
+- **Headless Operation**: use `--headless` parameters to run without rendering.
+- **Rendering Control**: during training, press 'v' to open or close rendering. 
+- **Policy Location**: Trained model save to `humanoid/logs/<experiment_name>/<date_time>_<run_name>/model_<iteration>.pt`.
+
+
+#### Command-Line Arguments
+
+Run RL training, please refer to `humanoid/utils/helpers.py`.
+Run sim2sim, please refer to `humanoid/scripts/sim2sim.py`.
+
+
+1. Every environment relies on an `env` file (`legged_robot.py`) and a `config` file (`legged_robot_config.py`). The latter includes two classes: `LeggedRobotCfg` (which includes all environment parameters) and `LeggedRobotCfgPPO` (which includes all training parameters). 
+2. Both `env` and `config` classes use inheritance. 
+3. In `cfg`, a non-zero reward specified in contributes the correspondingly named function to the total reward. 
+4. Must use `task_registry.register(name, EnvClass, EnvConfig, TrainConfig)` to register task. Registration can happen within `envs/__init__.py` or outside the repository. 
+
+## Add a new environment
+
+Basic environment "legged_robot" creates a construct a rough terrain locomotion task. The corresponding configuration does not specify the robot assets (URDF/MJCF) and reward scale. 
+
+1. If you need to add a new environment, please create a new repository under "envs/", and includes configuration file "<your_env>_config.py" within. New configurations should inherit from existing environment configurations. 
+2. If you propose to use a new robot: 
+
+   - Insert corresponding assets into the "resources/" repository. 
+   - In "cfg" files, set the path to the asset, define the body name, default_joint_positions and PD gains. Specify the desired 'train_cfg' and the name of the environment (python class).
+   - In "train_cfg" , set "experiment_name" and "run_name". 
+
+3. If needed, please create your environment in "<your_env>.py". Inherit from an existing environment, overriding required functionality and/or adding your bonus functionality. 
+4. Register your environment in `humanoid/envs/__init__.py` . 
+5. Modify or adjust other parameter in `cfg` or `cfg_train` according to your need. To remove the reward, set its scale to zero. Avoid modifying other environments' parameters!
+6. If you want your new robots/environments to implement sim2sim, you might need to change `humanoid/scripts/sim2sim.py`: 
+
+   - Check the robot joint mapping between MJCF and URDF. 
+   - Change the initial joint positions of the robot according to your trained policy. 
+
+## Acknowledgment
+
+The accomplishment of pi_rl_baseline relied on the resource from the [legged_gym](https://github.com/leggedrobotics/legged_gym) projec
