@@ -1,4 +1,4 @@
-! [sim](https://github.com/HighTorque-Robotics/livelybot_pi_rl_baseline/blob/release_v1.0.0/image/README/sim.gif)
+! (https://github.com/HighTorque-Robotics/livelybot_pi_rl_baseline/blob/release_v1.0.0/image/README/sim.gif)
 
 # Pi_rl_baseline
 
