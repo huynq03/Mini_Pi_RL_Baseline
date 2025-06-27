@@ -1,4 +1,4 @@
-
+file:///home/sunteng/Downloads/sim.gif
 # Pi_rl_baseline
 
 The baseline provided a reinforcement learning environment based on NVIDIA Isaac Gym. For the Pi Humanoid Robots from the HighTorque Robotics , Pi_rl_baseline also includes sim2sim framework from Isaac Gym to Mujoco, enabling users to validate their trained policies in different simulations to ensure policy robustness and generalization capabilities. 
