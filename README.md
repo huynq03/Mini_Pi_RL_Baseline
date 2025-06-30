@@ -1,4 +1,5 @@
 ![sim2sim](https://github.com/HighTorque-Robotics/livelybot_pi_rl_baseline/blob/release_v1.0.0/tinywow_%E9%A3%9E%E4%B9%A620250630-092216_82033498.gif)
+
 # Pi_rl_baseline
 
 The baseline provided a reinforcement learning environment based on NVIDIA Isaac Gym. For the Pi Humanoid Robots from the HighTorque Robotics , Pi_rl_baseline also includes sim2sim framework from Isaac Gym to Mujoco, enabling users to validate their trained policies in different simulations to ensure policy robustness and generalization capabilities. 
