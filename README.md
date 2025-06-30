@@ -1,4 +1,3 @@
-[![机器人运动演示](https://img.youtube.com/vi/EerM7ZWQFEQ/0.jpg)](https://youtu.be/EerM7ZWQFEQ)
 
 # Pi_rl_baseline
 
