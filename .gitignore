@@ -12,3 +12,6 @@ humanoid/envs/pai/__pycache__
 humanoid/utils/__pycache__
 livelybot_rl_control.egg-info
 pi_rl_control.egg-info/**
+# pixi environments
+.pixi/*
+!.pixi/config.toml

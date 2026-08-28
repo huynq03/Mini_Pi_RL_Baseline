@@ -1,11 +1,10 @@
 import math
+from pathlib import Path
 import numpy as np
 import mujoco, mujoco_viewer
 from tqdm import tqdm
 from collections import deque
 from scipy.spatial.transform import Rotation as R
-from humanoid import LEGGED_GYM_ROOT_DIR
-from humanoid.envs import PaiCfg
 import torch
 import threading
 import glfw
@@ -194,17 +193,36 @@ class mujoco_visual:
 
 if __name__ == '__main__':
     import argparse
-    print(LEGGED_GYM_ROOT_DIR)
+    project_root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(description='Deployment script.')
     parser.add_argument('--load_model', type=str, required=False,
                         help='Run to load from.',
-                        default=f"{LEGGED_GYM_ROOT_DIR}/logs/Pai_ppo/exported/policies/policy_1.pt")
+                        default=str(project_root / "logs/Pai_ppo/exported/policies/policy_1.pt"))
     parser.add_argument('--terrain', action='store_true', help='terrain or plane')
     args = parser.parse_args()
 
-    class Sim2simCfg(PaiCfg):
+    class Sim2simCfg:
+        class env:
+            frame_stack = 15
+            num_single_obs = 47
+            num_observations = frame_stack * num_single_obs
+            num_actions = 12
+
+        class normalization:
+            class obs_scales:
+                lin_vel = 2.0
+                ang_vel = 1.0
+                dof_pos = 1.0
+                dof_vel = 0.05
+
+            clip_observations = 18.0
+            clip_actions = 18.0
+
+        class control:
+            action_scale = 0.25
+
         class sim_config:
-            mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/pi_12dof_release_v1/mjcf/pi_12dof_release_v1.xml'
+            mujoco_model_path = str(project_root / 'resources/robots/pi_12dof_release_v1/mjcf/pi_12dof_release_v1.xml')
             sim_duration = 60.0
             dt = 0.001
             decimation = 20
